@@ -159,6 +159,16 @@ RUN modular config-set telemetry.enabled=false \
   && rm -rf ${HOME}/.cache \
     /opt/modular/.*_cache
 
+## Install the Mojo kernel for Jupyter
+RUN mkdir -p /usr/local/share/jupyter/kernels \
+  && mv ${HOME}/.local/share/jupyter/kernels/mojo* \
+    /usr/local/share/jupyter/kernels/ \
+  ## Fix Modular home in the Mojo kernel for Jupyter
+  && grep -rl ${HOME}/.local /usr/local/share/jupyter/kernels/mojo* | \
+    xargs sed -i "s|${HOME}/.local|/usr/local|g" \
+  && grep -rl ${HOME}/.modular /usr/local/share/jupyter/kernels/mojo* | \
+    xargs sed -i "s|${HOME}/.modular|/opt/modular|g"
+
 FROM base
 
 ARG INSTALL_MAX
@@ -171,6 +181,8 @@ ENV MODULAR_HOME=/opt/modular \
 
 ## Install Mojo or MAX
 COPY --from=modular /opt /opt
+## Install the Mojo kernel for Jupyter
+COPY --from=modular /usr/local/share/jupyter /usr/local/share/jupyter
 
 ## Install the MAX Engine Python package or numpy
 RUN export PIP_BREAK_SYSTEM_PACKAGES=1 \
