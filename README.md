@@ -62,8 +62,7 @@ latest:
 
 ```bash
 docker build \
-  --build-arg MODULAR_VERSION=0.7.4 \
-  --build-arg MODULAR_AUTH_KEY=<your-modular-auth-key> \
+  --build-arg MODULAR_VERSION=0.8.0 \
   --build-arg MOJO_VERSION=24.3.0 \
   --build-arg PYTHON_VERSION=3.12.3 \
   -t mojo/base \
@@ -74,7 +73,6 @@ version:
 
 ```bash
 docker build \
-  --build-arg MODULAR_AUTH_KEY=<your-modular-auth-key> \
   -t mojo/base:MAJOR.MINOR.PATCH \
   -f base/MAJOR.MINOR.PATCH.Dockerfile .
 ```
