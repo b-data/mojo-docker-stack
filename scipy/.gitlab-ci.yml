@@ -79,7 +79,7 @@ build:nightly-linux-arm64v8:
       --build-arg BUILD_START=$(date -uIseconds)
       -t $CI_APP_REPO:$CI_APP_TAG-linux-arm64v8
       -f scipy/latest.Dockerfile .
-    - docker push -a $CI_APP_REPO:$CI_APP_TAG-linux-arm64v8
+    - docker push $CI_APP_REPO:$CI_APP_TAG-linux-arm64v8
   rules:
     - if: $CI_COMMIT_BRANCH == "develop" && $UPDATE_MODE != "true" && $CI_BUILD_PLATFORMS =~ /(linux\/arm64\/v8)/
       changes:
