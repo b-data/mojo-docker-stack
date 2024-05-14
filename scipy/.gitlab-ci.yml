@@ -12,7 +12,7 @@
     fi
   - |
     export CI_APP_REPO=${CI_APP_REPO:-$CI_REGISTRY_IMAGE}
-    if [[ $CI_COMMIT_BRANCH == "main" || $CI_COMMIT_BRANCH == "freeze-version" ]]; then
+    if [[ $CI_COMMIT_BRANCH == "develop" || $CI_COMMIT_BRANCH == "main" || $CI_COMMIT_BRANCH == "freeze-version" ]]; then
       export CI_APP_TAG=${CI_APP_TAG:-$MOJO_VERSION}
     else
       export CI_APP_TAG=${CI_APP_TAG:-$CI_COMMIT_SHA}
@@ -46,6 +46,44 @@
   image: glcr.b-data.ch/docker/docker:dind
   stage: .post
   extends: .env
+
+build:nightly-linux-amd64:
+  extends: .build
+  tags:
+    - arch:amd64
+    - os:linux
+  script:
+    - >
+      docker build --pull
+      --build-arg BUILD_ON_IMAGE
+      --build-arg MOJO_VERSION
+      --build-arg BUILD_START=$(date -uIseconds)
+      -t $CI_APP_REPO:$CI_APP_TAG-linux-amd64
+      -f scipy/latest.Dockerfile .
+    - docker push $CI_APP_REPO:$CI_APP_TAG-linux-amd64
+  rules:
+    - if: $CI_COMMIT_BRANCH == "develop" && $UPDATE_MODE != "true" && $CI_BUILD_PLATFORMS =~ /(linux\/amd64)/
+      changes:
+        - scipy/latest.Dockerfile
+
+build:nightly-linux-arm64v8:
+  extends: .build
+  tags:
+    - arch:arm64/v8
+    - os:linux
+  script:
+    - >
+      docker build --pull
+      --build-arg BUILD_ON_IMAGE
+      --build-arg MOJO_VERSION
+      --build-arg BUILD_START=$(date -uIseconds)
+      -t $CI_APP_REPO:$CI_APP_TAG-linux-arm64v8
+      -f scipy/latest.Dockerfile .
+    - docker push -a $CI_APP_REPO:$CI_APP_TAG-linux-arm64v8
+  rules:
+    - if: $CI_COMMIT_BRANCH == "develop" && $UPDATE_MODE != "true" && $CI_BUILD_PLATFORMS =~ /(linux\/arm64\/v8)/
+      changes:
+        - scipy/latest.Dockerfile
 
 build:latest-linux-amd64:
   extends: .build
@@ -122,6 +160,26 @@ build:version-linux-arm64v8:
     - if: $CI_COMMIT_BRANCH == "freeze-version" && $CI_PIPELINE_TRIGGERED && $CI_BUILD_PLATFORMS =~ /(linux\/arm64\/v8)/
       changes:
         - scipy/$MOJO_VERSION.Dockerfile
+
+build-manifest:nightly-linux-multiarch:
+  extends: .build
+  needs: ["build:nightly-linux-amd64", "build:nightly-linux-arm64v8"]
+  script:
+    - |
+      for i in $OS_ARCH; do
+        export CI_MANIFEST_LIST="$CI_MANIFEST_LIST $CI_APP_REPO:$CI_APP_TAG-$i"
+      done
+    - |
+      docker manifest create $CI_APP_REPO:$CI_APP_TAG $CI_MANIFEST_LIST
+      if echo $OS_ARCH | grep "linux-arm64v8" >/dev/null ; then
+        docker manifest annotate --variant v8 $CI_APP_REPO:$CI_APP_TAG \
+          $CI_APP_REPO:$CI_APP_TAG-linux-arm64v8
+      fi
+      docker manifest push $CI_APP_REPO:$CI_APP_TAG
+  rules:
+    - if: $CI_COMMIT_BRANCH == "develop" && $UPDATE_MODE != "true"
+      changes:
+        - scipy/latest.Dockerfile
 
 build-manifest:latest-linux-multiarch:
   extends: .build

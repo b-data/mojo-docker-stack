@@ -146,7 +146,11 @@ RUN modular config-set telemetry.enabled=false \
   && if [ "${INSTALL_MAX}" = "1" ] || [ "${INSTALL_MAX}" = "true" ]; then \
     modular install --install-version "${MOJO_VERSION}" max; \
   else \
-    modular install --install-version "${MOJO_VERSION_FULL}" mojo; \
+    if [ "${MOJO_VERSION}" = "nightly" ]; then \
+      modular install nightly/mojo; \
+    else \
+      modular install --install-version "${MOJO_VERSION_FULL}" mojo; \
+    fi \
   fi \
   && chown -R root:${NB_GID} ${MODULAR_HOME} \
   && chmod -R g+w ${MODULAR_HOME} \
@@ -164,10 +168,20 @@ RUN mkdir -p /usr/local/share/jupyter/kernels \
 
 FROM base
 
+ARG MOJO_VERSION_NIGHTLY=${MOJO_VERSION%%0*}
+ARG MOJO_VERSION_NIGHTLY=${MOJO_VERSION_NIGHTLY%%1*}
+ARG MOJO_VERSION_NIGHTLY=${MOJO_VERSION_NIGHTLY%%2*}
+ARG MOJO_VERSION_NIGHTLY=${MOJO_VERSION_NIGHTLY%%3*}
+ARG MOJO_VERSION_NIGHTLY=${MOJO_VERSION_NIGHTLY%%4*}
+ARG MOJO_VERSION_NIGHTLY=${MOJO_VERSION_NIGHTLY%%5*}
+ARG MOJO_VERSION_NIGHTLY=${MOJO_VERSION_NIGHTLY%%6*}
+ARG MOJO_VERSION_NIGHTLY=${MOJO_VERSION_NIGHTLY%%7*}
+ARG MOJO_VERSION_NIGHTLY=${MOJO_VERSION_NIGHTLY%%8*}
+ARG MOJO_VERSION_NIGHTLY=${MOJO_VERSION_NIGHTLY%%9*}
 ARG INSTALL_MAX
 
 ARG MODULAR_PKG_BIN=${INSTALL_MAX:+$MODULAR_HOME/pkg/packages.modular.com_max/bin}
-ARG MODULAR_PKG_BIN=${MODULAR_PKG_BIN:-$MODULAR_HOME/pkg/packages.modular.com_mojo/bin}
+ARG MODULAR_PKG_BIN=${MODULAR_PKG_BIN:-$MODULAR_HOME/pkg/packages.modular.com${MOJO_VERSION_NIGHTLY:+_nightly}_mojo/bin}
 
 ENV PATH=${MODULAR_PKG_BIN}:$PATH
 
