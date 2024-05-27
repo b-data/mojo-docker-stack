@@ -138,6 +138,7 @@ RUN dpkgArch="$(dpkg --print-architecture)" \
 
 ## Install Mojo or MAX
 RUN modular config-set telemetry.enabled=false \
+  && modular config-set telemetry.level=0 \
   && modular config-set crash_reporting.enabled=false \
   && if [ "${MODULAR_NO_AUTH}" != "1" ] && [ "${MODULAR_NO_AUTH}" != "true" ]; then \
     modular auth \
