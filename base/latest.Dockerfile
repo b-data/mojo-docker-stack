@@ -4,7 +4,7 @@ ARG BUILD_ON_IMAGE=glcr.b-data.ch/python/ver
 ARG MODULAR_VERSION
 ARG MOJO_VERSION
 ARG PYTHON_VERSION
-ARG GIT_VERSION=2.45.1
+ARG GIT_VERSION=2.45.2
 ARG GIT_LFS_VERSION=3.5.1
 ARG PANDOC_VERSION=3.1.11
 
@@ -138,6 +138,7 @@ RUN dpkgArch="$(dpkg --print-architecture)" \
 
 ## Install Mojo or MAX
 RUN modular config-set telemetry.enabled=false \
+  && modular config-set telemetry.level=0 \
   && modular config-set crash_reporting.enabled=false \
   && if [ "${MODULAR_NO_AUTH}" != "1" ] && [ "${MODULAR_NO_AUTH}" != "true" ]; then \
     modular auth \
