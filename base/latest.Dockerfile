@@ -145,7 +145,11 @@ RUN modular config-set telemetry.enabled=false \
       "${MODULAR_AUTH_KEY:-$(echo -n "${NB_USER}" | sha256sum | cut -c -8)}"; \
   fi \
   && if [ "${INSTALL_MAX}" = "1" ] || [ "${INSTALL_MAX}" = "true" ]; then \
-    modular install --install-version "${MOJO_VERSION}" max; \
+    if [ "${MOJO_VERSION}" = "nightly" ]; then \
+      modular install nightly/max; \
+    else \
+      modular install --install-version "${MOJO_VERSION}" max; \
+    fi \
   else \
     if [ "${MOJO_VERSION}" = "nightly" ]; then \
       modular install nightly/mojo; \
@@ -181,7 +185,7 @@ ARG MOJO_VERSION_NIGHTLY=${MOJO_VERSION_NIGHTLY%%8*}
 ARG MOJO_VERSION_NIGHTLY=${MOJO_VERSION_NIGHTLY%%9*}
 ARG INSTALL_MAX
 
-ARG MODULAR_PKG_BIN=${INSTALL_MAX:+$MODULAR_HOME/pkg/packages.modular.com_max/bin}
+ARG MODULAR_PKG_BIN=${INSTALL_MAX:+$MODULAR_HOME/pkg/packages.modular.com${MOJO_VERSION_NIGHTLY:+_nightly}_max/bin}
 ARG MODULAR_PKG_BIN=${MODULAR_PKG_BIN:-$MODULAR_HOME/pkg/packages.modular.com${MOJO_VERSION_NIGHTLY:+_nightly}_mojo/bin}
 
 ENV PATH=${MODULAR_PKG_BIN}:$PATH
@@ -195,7 +199,7 @@ COPY --from=modular /usr/local/share/jupyter /usr/local/share/jupyter
 RUN export PIP_BREAK_SYSTEM_PACKAGES=1 \
   && if [ "${INSTALL_MAX}" = "1" ] || [ "${INSTALL_MAX}" = "true" ]; then \
     pip install --find-links \
-      ${MODULAR_HOME}/pkg/packages.modular.com_max/wheels max-engine; \
+      ${MODULAR_HOME}/pkg/packages.modular.com${MOJO_VERSION_NIGHTLY:+_nightly}_max/wheels max-engine; \
   else \
     pip install numpy; \
   fi \
