@@ -1,7 +1,7 @@
 .env:
   variables:
     MODULAR_VERSION: "0.8.0"
-    MOJO_VERSION: "nightly"
+    MOJO_VERSION: "24.4.0"
     PYTHON_VERSION: "3.12.4"
     TAG_VERSION_MAJ_MIN: "false"
     TAG_VERSION_MAJ: "false"
@@ -163,7 +163,7 @@ build:version-linux-amd64:
       -f $MOJO_VERSION.Dockerfile .
     - docker push $CI_APP_REPO:$CI_APP_TAG-linux-amd64
   rules:
-    - if: $CI_COMMIT_BRANCH == "freeze-version" && $CI_PIPELINE_TRIGGERED && $CI_BUILD_PLATFORMS =~ /(linux\/amd64)/
+    - if: $CI_COMMIT_BRANCH == "freeze-version" && $CI_BUILD_PLATFORMS =~ /(linux\/amd64)/
       changes:
         - base/$MOJO_VERSION.Dockerfile
 
@@ -183,7 +183,7 @@ build:version-linux-arm64v8:
       -f $MOJO_VERSION.Dockerfile .
     - docker push $CI_APP_REPO:$CI_APP_TAG-linux-arm64v8
   rules:
-    - if: $CI_COMMIT_BRANCH == "freeze-version" && $CI_PIPELINE_TRIGGERED && $CI_BUILD_PLATFORMS =~ /(linux\/arm64\/v8)/
+    - if: $CI_COMMIT_BRANCH == "freeze-version" && $CI_BUILD_PLATFORMS =~ /(linux\/arm64\/v8)/
       changes:
         - base/$MOJO_VERSION.Dockerfile
 
@@ -282,7 +282,7 @@ build-manifest:version-linux-multiarch:
         docker manifest push $CI_APP_REPO:$VERSION_MAJ
       fi
   rules:
-    - if: $CI_COMMIT_BRANCH == "freeze-version" && $CI_PIPELINE_TRIGGERED
+    - if: $CI_COMMIT_BRANCH == "freeze-version"
       changes:
         - base/$MOJO_VERSION.Dockerfile
 
@@ -330,6 +330,6 @@ trigger-version-build:
   rules:
     - if: $CUDA_IMAGE
       when: never
-    - if: $CI_COMMIT_BRANCH == "freeze-version" && $CI_PIPELINE_TRIGGERED
+    - if: $CI_COMMIT_BRANCH == "freeze-version"
       changes:
         - base/$MOJO_VERSION.Dockerfile
