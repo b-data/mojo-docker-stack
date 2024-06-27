@@ -1,6 +1,6 @@
 ARG BUILD_ON_IMAGE=glcr.b-data.ch/mojo/base
 ARG MOJO_VERSION
-ARG QUARTO_VERSION=1.4.556
+ARG QUARTO_VERSION=1.4.557
 ARG CTAN_REPO=https://mirror.ctan.org/systems/texlive/tlnet
 
 FROM ${BUILD_ON_IMAGE}${MOJO_VERSION:+:$MOJO_VERSION}
