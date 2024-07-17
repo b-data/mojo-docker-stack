@@ -116,6 +116,8 @@ RUN dpkgArch="$(dpkg --print-architecture)" \
 
 FROM base AS modular
 
+ARG NB_GID=100
+
 ARG MODULAR_VERSION
 ARG MODULAR_NO_AUTH
 ARG MODULAR_AUTH_KEY
