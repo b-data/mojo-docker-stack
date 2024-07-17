@@ -8,10 +8,10 @@ ARG GIT_VERSION=2.45.2
 ARG GIT_LFS_VERSION=3.5.1
 ARG PANDOC_VERSION=3.2
 
-FROM glcr.b-data.ch/git/gsi/${GIT_VERSION}/${BASE_IMAGE}:${BASE_IMAGE_TAG} as gsi
-FROM glcr.b-data.ch/git-lfs/glfsi:${GIT_LFS_VERSION} as glfsi
+FROM glcr.b-data.ch/git/gsi/${GIT_VERSION}/${BASE_IMAGE}:${BASE_IMAGE_TAG} AS gsi
+FROM glcr.b-data.ch/git-lfs/glfsi:${GIT_LFS_VERSION} AS glfsi
 
-FROM ${BUILD_ON_IMAGE}${PYTHON_VERSION:+:$PYTHON_VERSION} as base
+FROM ${BUILD_ON_IMAGE}${PYTHON_VERSION:+:$PYTHON_VERSION} AS base
 
 ARG DEBIAN_FRONTEND=noninteractive
 
@@ -114,7 +114,9 @@ RUN dpkgArch="$(dpkg --print-architecture)" \
   && rm -rf /var/lib/apt/lists/* \
     ${HOME}/.cache
 
-FROM base as modular
+FROM base AS modular
+
+ARG NB_GID=100
 
 ARG MODULAR_VERSION
 ARG MODULAR_NO_AUTH
