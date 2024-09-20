@@ -4,30 +4,36 @@ ARG BUILD_ON_IMAGE=glcr.b-data.ch/python/ver
 ARG MODULAR_VERSION
 ARG MOJO_VERSION
 ARG PYTHON_VERSION
-ARG GIT_VERSION=2.45.2
+ARG NEOVIM_VERSION=0.10.1
+ARG GIT_VERSION=2.46.1
 ARG GIT_LFS_VERSION=3.5.1
-ARG PANDOC_VERSION=3.1.11
+ARG PANDOC_VERSION=3.2
 
-FROM glcr.b-data.ch/git/gsi/${GIT_VERSION}/${BASE_IMAGE}:${BASE_IMAGE_TAG} as gsi
-FROM glcr.b-data.ch/git-lfs/glfsi:${GIT_LFS_VERSION} as glfsi
+FROM glcr.b-data.ch/neovim/nvsi:${NEOVIM_VERSION} AS nvsi
+FROM glcr.b-data.ch/git/gsi/${GIT_VERSION}/${BASE_IMAGE}:${BASE_IMAGE_TAG} AS gsi
+FROM glcr.b-data.ch/git-lfs/glfsi:${GIT_LFS_VERSION} AS glfsi
 
-FROM ${BUILD_ON_IMAGE}${PYTHON_VERSION:+:$PYTHON_VERSION} as base
+FROM ${BUILD_ON_IMAGE}${PYTHON_VERSION:+:$PYTHON_VERSION} AS base
 
 ARG DEBIAN_FRONTEND=noninteractive
 
 ARG BUILD_ON_IMAGE
 ARG MOJO_VERSION
+ARG NEOVIM_VERSION
 ARG GIT_VERSION
 ARG GIT_LFS_VERSION
 ARG PANDOC_VERSION
 
 ENV PARENT_IMAGE=${BUILD_ON_IMAGE}${PYTHON_VERSION:+:$PYTHON_VERSION} \
+    NEOVIM_VERSION=${NEOVIM_VERSION} \
     MODULAR_HOME=/opt/modular \
     MOJO_VERSION=${MOJO_VERSION%%-*} \
     GIT_VERSION=${GIT_VERSION} \
     GIT_LFS_VERSION=${GIT_LFS_VERSION} \
     PANDOC_VERSION=${PANDOC_VERSION}
 
+## Install Neovim
+COPY --from=nvsi /usr/local /usr/local
 ## Install Git
 COPY --from=gsi /usr/local /usr/local
 ## Install Git LFS
@@ -61,6 +67,8 @@ RUN dpkgArch="$(dpkg --print-architecture)" \
     vim-tiny \
     wget \
     zsh \
+    ## Neovim: Additional runtime recommendations
+    ripgrep \
     ## Git: Additional runtime dependencies
     libcurl3-gnutls \
     liberror-perl \
@@ -88,12 +96,10 @@ RUN dpkgArch="$(dpkg --print-architecture)" \
     done; \
   else \
     ## Force update pip, setuptools and wheel
-    curl -sLO https://bootstrap.pypa.io/get-pip.py; \
-    python get-pip.py \
+    pip install --upgrade --force-reinstall \
       pip \
       setuptools \
       wheel; \
-    rm get-pip.py; \
   fi \
   ## Modular: Additional runtime dependencies
   && apt-get -y install --no-install-recommends \
@@ -114,7 +120,9 @@ RUN dpkgArch="$(dpkg --print-architecture)" \
   && rm -rf /var/lib/apt/lists/* \
     ${HOME}/.cache
 
-FROM base as modular
+FROM base AS modular
+
+ARG NB_GID=100
 
 ARG MODULAR_VERSION
 ARG MODULAR_NO_AUTH

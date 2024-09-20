@@ -41,6 +41,7 @@ and any configuration thereof.
 * [Install](#install)
 * [Usage](#usage)
 * [Contributing](#contributing)
+* [Support](#support)
 * [License](#license)
 
 ## Prerequisites
@@ -62,10 +63,10 @@ nightly:
 
 ```bash
 docker build \
-  --build-arg MODULAR_VERSION=0.8.0 \
+  --build-arg MODULAR_VERSION=0.9.2 \
   --build-arg MODULAR_AUTH_KEY=<your-modular-auth-key> \
   --build-arg MOJO_VERSION=nightly \
-  --build-arg PYTHON_VERSION=3.12.4 \
+  --build-arg PYTHON_VERSION=3.12.6 \
   -t mojo/base:nightly \
   -f base/latest.Dockerfile .
 ```
@@ -74,10 +75,10 @@ latest:
 
 ```bash
 docker build \
-  --build-arg MODULAR_VERSION=0.8.0 \
+  --build-arg MODULAR_VERSION=0.9.2 \
   --build-arg MODULAR_AUTH_KEY=<your-modular-auth-key> \
-  --build-arg MOJO_VERSION=24.3.0 \
-  --build-arg PYTHON_VERSION=3.12.4 \
+  --build-arg MOJO_VERSION=24.4.0 \
+  --build-arg PYTHON_VERSION=3.12.6 \
   -t mojo/base \
   -f base/latest.Dockerfile .
 ```
@@ -120,6 +121,13 @@ PRs accepted. Please submit to the
 This project follows the
 [Contributor Covenant](https://www.contributor-covenant.org)
 [Code of Conduct](CODE_OF_CONDUCT.md).
+
+## Support
+
+Community support: Open a new disussion
+[here](https://github.com/orgs/b-data/discussions).
+
+Commercial support: Contact b-data by [email](mailto:support@b-data.ch).
 
 ## License
 
