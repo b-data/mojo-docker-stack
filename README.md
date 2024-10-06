@@ -73,7 +73,7 @@ latest:
 
 ```bash
 docker build \
-  --build-arg MOJO_VERSION=24.4.0 \
+  --build-arg MOJO_VERSION=24.5.0 \
   --build-arg PYTHON_VERSION=3.12.7 \
   -t mojo/base \
   -f base/latest.Dockerfile .
