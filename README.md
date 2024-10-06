@@ -63,8 +63,6 @@ nightly:
 
 ```bash
 docker build \
-  --build-arg MODULAR_VERSION=0.9.2 \
-  --build-arg MODULAR_AUTH_KEY=<your-modular-auth-key> \
   --build-arg MOJO_VERSION=nightly \
   --build-arg PYTHON_VERSION=3.12.7 \
   -t mojo/base:nightly \
@@ -75,9 +73,7 @@ latest:
 
 ```bash
 docker build \
-  --build-arg MODULAR_VERSION=0.9.2 \
-  --build-arg MODULAR_AUTH_KEY=<your-modular-auth-key> \
-  --build-arg MOJO_VERSION=24.4.0 \
+  --build-arg MOJO_VERSION=24.5.0 \
   --build-arg PYTHON_VERSION=3.12.7 \
   -t mojo/base \
   -f base/latest.Dockerfile .
@@ -88,7 +84,6 @@ version:
 ```bash
 docker build \
   -t mojo/base:MAJOR.MINOR.PATCH \
-  --build-arg MODULAR_AUTH_KEY=<your-modular-auth-key> \
   -f base/MAJOR.MINOR.PATCH.Dockerfile .
 ```
 
