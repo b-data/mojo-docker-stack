@@ -1,7 +1,6 @@
 .env:
   variables:
-    MODULAR_VERSION: "0.9.2"
-    MOJO_VERSION: "nightly"
+    MOJO_VERSION: "24.5.0"
     PYTHON_VERSION: "3.12.7"
     TAG_VERSION_MAJ_MIN: "false"
     TAG_VERSION_MAJ: "false"
@@ -60,7 +59,6 @@ build:nightly-linux-amd64:
       --build-arg BASE_IMAGE
       --build-arg BASE_IMAGE_TAG
       --build-arg BUILD_ON_IMAGE
-      --build-arg MODULAR_VERSION
       --build-arg MOJO_VERSION
       --build-arg INSTALL_MAX
       --build-arg PYTHON_VERSION
@@ -84,7 +82,6 @@ build:nightly-linux-arm64v8:
       --build-arg BASE_IMAGE
       --build-arg BASE_IMAGE_TAG
       --build-arg BUILD_ON_IMAGE
-      --build-arg MODULAR_VERSION
       --build-arg MOJO_VERSION
       --build-arg INSTALL_MAX
       --build-arg PYTHON_VERSION
@@ -108,7 +105,6 @@ build:latest-linux-amd64:
       --build-arg BASE_IMAGE
       --build-arg BASE_IMAGE_TAG
       --build-arg BUILD_ON_IMAGE
-      --build-arg MODULAR_VERSION
       --build-arg MOJO_VERSION
       --build-arg INSTALL_MAX
       --build-arg PYTHON_VERSION
@@ -133,7 +129,6 @@ build:latest-linux-arm64v8:
       --build-arg BASE_IMAGE
       --build-arg BASE_IMAGE_TAG
       --build-arg BUILD_ON_IMAGE
-      --build-arg MODULAR_VERSION
       --build-arg MOJO_VERSION
       --build-arg INSTALL_MAX
       --build-arg PYTHON_VERSION
