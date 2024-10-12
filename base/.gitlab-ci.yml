@@ -289,7 +289,7 @@ trigger-nightly-build:
     - apk upgrade --no-cache
     - apk add --update --no-cache curl
   script:
-    - curl -X POST -F token=$MOJO_SCIPY -F ref=develop https://gitlab.b-data.ch/api/v4/projects/346/trigger/pipeline
+    - curl -X POST -F token=$MOJO_TRIGGER_TOKEN -F ref=develop $MOJO_TRIGGER_URL
   rules:
     - if: $CUDA_IMAGE
       when: never
@@ -305,7 +305,7 @@ trigger-latest-build:
     - apk upgrade --no-cache
     - apk add --update --no-cache curl
   script:
-    - curl -X POST -F token=$MOJO_SCIPY -F ref=main https://gitlab.b-data.ch/api/v4/projects/346/trigger/pipeline
+    - curl -X POST -F token=$MOJO_TRIGGER_TOKEN -F ref=main $MOJO_TRIGGER_URL
   rules:
     - if: $CUDA_IMAGE
       when: never
@@ -321,7 +321,7 @@ trigger-version-build:
     - apk upgrade --no-cache
     - apk add --update --no-cache curl
   script:
-    - curl -X POST -F token=$MOJO_SCIPY -F ref=freeze-version https://gitlab.b-data.ch/api/v4/projects/346/trigger/pipeline
+    - curl -X POST -F token=$MOJO_TRIGGER_TOKEN -F ref=freeze-version $MOJO_TRIGGER_URL
   rules:
     - if: $CUDA_IMAGE
       when: never
