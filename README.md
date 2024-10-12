@@ -66,7 +66,6 @@ nightly:
 ```bash
 docker build \
   --build-arg MOJO_VERSION=nightly \
-  --build-arg INSTALL_MAX=false \
   --build-arg PYTHON_VERSION=3.12.7 \
   -t mojo/base:nightly \
   -f base/latest.Dockerfile .
@@ -77,7 +76,6 @@ latest:
 ```bash
 docker build \
   --build-arg MOJO_VERSION=24.5.0 \
-  --build-arg INSTALL_MAX=false \
   --build-arg PYTHON_VERSION=3.12.7 \
   -t mojo/base \
   -f base/latest.Dockerfile .
@@ -88,7 +86,6 @@ version:
 ```bash
 docker build \
   -t mojo/base:MAJOR.MINOR.PATCH \
-  --build-arg INSTALL_MAX=false \
   -f base/MAJOR.MINOR.PATCH.Dockerfile .
 ```
 
