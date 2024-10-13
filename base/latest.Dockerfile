@@ -77,7 +77,7 @@ RUN dpkgArch="$(dpkg --print-architecture)" \
     ## Python: For h5py wheels (arm64)
     libhdf5-dev \
   ## Python: Additional dev dependencies
-  && if [ -z "$PYTHON_VERSION" ]; then \
+  && if [ -z "${PYTHON_VERSION}" ]; then \
     apt-get -y install --no-install-recommends \
       python3-dev \
       ## Install Python package installer
@@ -134,9 +134,9 @@ ARG INSTALL_MAX
 
   ## Install Magic
 RUN curl -ssL https://magic.modular.com | bash \
-  && mv $HOME/.modular/bin/magic /usr/local/bin \
+  && mv ${HOME}/.modular/bin/magic /usr/local/bin \
   ## Clean up
-  && rm -rf $HOME/.modular \
+  && rm -rf ${HOME}/.modular \
   && rm -rf /usr/local/lib/python${PYTHON_VERSION%.*}/site-packages/* \
   ## Install Mojo (MAX)
   && cd /tmp \
@@ -239,6 +239,7 @@ FROM base
 ARG INSTALL_MAX
 
 ENV PATH=/opt/modular/bin:$PATH
+ENV MAGIC_NO_PATH_UPDATE=1
 
 ## Install Mojo (MAX)
 COPY --from=modular /opt /opt
@@ -248,8 +249,23 @@ COPY --from=modular /usr/local/share/jupyter /usr/local/share/jupyter
 COPY --from=modular /usr/local/lib/python${PYTHON_VERSION%.*}/site-packages \
   /usr/local/lib/python${PYTHON_VERSION%.*}/site-packages
 
-## Mojo (MAX): Install Python dependencies
-RUN export PIP_BREAK_SYSTEM_PACKAGES=1 \
+RUN curl -ssL https://magic.modular.com | grep '^MODULAR_HOME\|^BIN_DIR' \
+    > /tmp/magicenv \
+  && cp /tmp/magicenv /var/tmp/magicenv \
+  ## Create the magic bin dir
+  && . /tmp/magicenv \
+  && mkdir -p ${BIN_DIR} \
+  && mkdir -p /etc/skel/.modular/bin \
+  ## Append the magic bin dir to PATH
+  && sed -i 's/\$HOME/\\$HOME/g' /var/tmp/magicenv \
+  && . /var/tmp/magicenv \
+  && echo "\nif [[ \"\$PATH\" != *\"${BIN_DIR}\"* ]] ; then\n    PATH=\"\$PATH:${BIN_DIR}\"\nfi" | tee -a ${HOME}/.bashrc \
+    /etc/skel/.bashrc \
+  ## Create the magic bin dir in the skeleton directory
+  && HOME=/etc/skel . /tmp/magicenv \
+  && mkdir -p ${BIN_DIR} \
+  ## Mojo (MAX): Install Python dependencies
+  && export PIP_BREAK_SYSTEM_PACKAGES=1 \
   && if [ "${INSTALL_MAX}" = "1" ] || [ "${INSTALL_MAX}" = "true" ]; then \
     packages=$(grep "Requires-Dist:" \
       /usr/local/lib/python${PYTHON_VERSION%.*}/site-packages/max*.dist-info/METADATA | \
@@ -260,7 +276,9 @@ RUN export PIP_BREAK_SYSTEM_PACKAGES=1 \
     pip install numpy; \
   fi \
   ## Clean up
-  && rm -rf ${HOME}/.cache
+  && rm -rf ${HOME}/.cache \
+    /tmp/magicenv \
+    /var/tmp/magicenv
 
 ARG BUILD_START
 
