@@ -252,16 +252,16 @@ COPY --from=modular /usr/local/lib/python${PYTHON_VERSION%.*}/site-packages \
 RUN curl -ssL https://magic.modular.com | grep '^MODULAR_HOME\|^BIN_DIR' \
     > /tmp/magicenv \
   && cp /tmp/magicenv /var/tmp/magicenv \
-  ## Create the magic bin dir
+  ## Create the user's modular bin dir
   && . /tmp/magicenv \
   && mkdir -p ${BIN_DIR} \
   && mkdir -p /etc/skel/.modular/bin \
-  ## Append the magic bin dir to PATH
+  ## Append the user's modular bin dir to PATH
   && sed -i 's/\$HOME/\\$HOME/g' /var/tmp/magicenv \
   && . /var/tmp/magicenv \
-  && echo "\nif [[ \"\$PATH\" != *\"${BIN_DIR}\"* ]] ; then\n    PATH=\"\$PATH:${BIN_DIR}\"\nfi" | tee -a ${HOME}/.bashrc \
+  && echo "\n# Append the user's modular bin dir to PATH\nif [[ \"\$PATH\" != *\"${BIN_DIR}\"* ]] ; then\n    PATH=\"\$PATH:${BIN_DIR}\"\nfi" | tee -a ${HOME}/.bashrc \
     /etc/skel/.bashrc \
-  ## Create the magic bin dir in the skeleton directory
+  ## Create the user's modular bin dir in the skeleton directory
   && HOME=/etc/skel . /tmp/magicenv \
   && mkdir -p ${BIN_DIR} \
   ## Mojo (MAX): Install Python dependencies
