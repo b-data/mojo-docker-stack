@@ -259,7 +259,7 @@ RUN curl -ssL https://magic.modular.com | grep '^MODULAR_HOME\|^BIN_DIR' \
   ## Append the magic bin dir to PATH
   && sed -i 's/\$HOME/\\$HOME/g' /var/tmp/magicenv \
   && . /var/tmp/magicenv \
-  && echo "\nexport PATH=\"\$PATH:${BIN_DIR}\"" | tee -a ${HOME}/.bashrc \
+  && echo "\nif [[ \"\$PATH\" != *\"${BIN_DIR}\"* ]] ; then\n    PATH=\"\$PATH:${BIN_DIR}\"\nfi" | tee -a ${HOME}/.bashrc \
     /etc/skel/.bashrc \
   ## Create the magic bin dir in the skeleton directory
   && HOME=/etc/skel . /tmp/magicenv \
