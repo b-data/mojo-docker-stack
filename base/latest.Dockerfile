@@ -251,14 +251,14 @@ COPY --from=modular /usr/local/lib/python${PYTHON_VERSION%.*}/site-packages \
 
 RUN curl -ssL https://magic.modular.com | grep '^MODULAR_HOME\|^BIN_DIR' \
     > /tmp/magicenv \
-  && cp /tmp/magicenv /var/tmp/magicenv \
+  && cp /tmp/magicenv /tmp/magicenv.mod \
   ## Create the user's modular bin dir
   && . /tmp/magicenv \
   && mkdir -p ${BIN_DIR} \
   && mkdir -p /etc/skel/.modular/bin \
   ## Append the user's modular bin dir to PATH
-  && sed -i 's/\$HOME/\\$HOME/g' /var/tmp/magicenv \
-  && . /var/tmp/magicenv \
+  && sed -i 's/\$HOME/\\$HOME/g' /tmp/magicenv.mod \
+  && . /tmp/magicenv.mod \
   && echo "\n# Append the user's modular bin dir to PATH\nif [[ \"\$PATH\" != *\"${BIN_DIR}\"* ]] ; then\n    PATH=\"\$PATH:${BIN_DIR}\"\nfi" | tee -a ${HOME}/.bashrc \
     /etc/skel/.bashrc \
   ## Create the user's modular bin dir in the skeleton directory
@@ -278,7 +278,7 @@ RUN curl -ssL https://magic.modular.com | grep '^MODULAR_HOME\|^BIN_DIR' \
   ## Clean up
   && rm -rf ${HOME}/.cache \
     /tmp/magicenv \
-    /var/tmp/magicenv
+    /tmp/magicenv.mod
 
 ARG BUILD_START
 
