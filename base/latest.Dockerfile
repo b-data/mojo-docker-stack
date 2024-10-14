@@ -251,6 +251,7 @@ COPY --from=modular /usr/local/lib/python${PYTHON_VERSION%.*}/site-packages \
 
 RUN curl -ssL https://magic.modular.com | grep '^MODULAR_HOME\|^BIN_DIR' \
     > /tmp/magicenv \
+  && cp /tmp/magicenv /var/tmp/magicenv.bak \
   && cp /tmp/magicenv /tmp/magicenv.mod \
   ## Create the user's modular bin dir
   && . /tmp/magicenv \
