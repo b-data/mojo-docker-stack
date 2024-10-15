@@ -6,10 +6,10 @@
 
 Multi-arch (`linux/amd64`, `linux/arm64/v8`) docker images:
 
-* [`glcr.b-data.ch/mojo/base`](https://gitlab.b-data.ch/mojo/base/container_registry)
-* [`glcr.b-data.ch/mojo/scipy`](https://gitlab.b-data.ch/mojo/scipy/container_registry)
 * [`glcr.b-data.ch/max/base`](https://gitlab.b-data.ch/max/base/container_registry)
 * [`glcr.b-data.ch/max/scipy`](https://gitlab.b-data.ch/max/scipy/container_registry)
+* [`glcr.b-data.ch/mojo/base`](https://gitlab.b-data.ch/mojo/base/container_registry)
+* [`glcr.b-data.ch/mojo/scipy`](https://gitlab.b-data.ch/mojo/scipy/container_registry)
 
 Images considered stable for Mojo versions ≥ 24.3.0.
 
@@ -36,6 +36,9 @@ These images are counterparts to the JupyterLab images but **without**
 * Widgets
 
 and any configuration thereof.
+
+:information_source: Regading [Magic](https://docs.modular.com/magic/), see
+[[(JupyterLab) MAX/Mojo docker stack] Why is Magic not installed?](https://github.com/orgs/b-data/discussions/5)
 
 ## Table of Contents
 
@@ -107,10 +110,10 @@ docker run -it --rm IMAGE[:MAJOR[.MINOR[.PATCH]]]
 
 `IMAGE` being one of
 
-* [`glcr.b-data.ch/mojo/base`](https://gitlab.b-data.ch/mojo/base/container_registry)
-* [`glcr.b-data.ch/mojo/scipy`](https://gitlab.b-data.ch/mojo/scipy/container_registry)
 * [`glcr.b-data.ch/max/base`](https://gitlab.b-data.ch/max/base/container_registry)
 * [`glcr.b-data.ch/max/scipy`](https://gitlab.b-data.ch/max/scipy/container_registry)
+* [`glcr.b-data.ch/mojo/base`](https://gitlab.b-data.ch/mojo/base/container_registry)
+* [`glcr.b-data.ch/mojo/scipy`](https://gitlab.b-data.ch/mojo/scipy/container_registry)
 
 ## Contributing
 
