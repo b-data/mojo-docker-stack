@@ -189,7 +189,6 @@ RUN curl -ssL https://magic.modular.com | bash \
     default/bin/mojo* \
     /opt/modular/bin \
   && cp -a default/lib/libAsyncRT* \
-    default/lib/libCUDA* \
     default/lib/libKGENCompilerRT* \
     default/lib/liblldb* \
     default/lib/libMojo* \
