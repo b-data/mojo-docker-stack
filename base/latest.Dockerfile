@@ -5,7 +5,7 @@ ARG MOJO_VERSION
 ARG PYTHON_VERSION
 ARG NEOVIM_VERSION=0.10.2
 ARG GIT_VERSION=2.47.0
-ARG GIT_LFS_VERSION=3.5.1
+ARG GIT_LFS_VERSION=3.6.0
 ARG PANDOC_VERSION=3.2
 
 FROM glcr.b-data.ch/neovim/nvsi:${NEOVIM_VERSION} AS nvsi
@@ -189,7 +189,6 @@ RUN curl -ssL https://magic.modular.com | bash \
     default/bin/mojo* \
     /opt/modular/bin \
   && cp -a default/lib/libAsyncRT* \
-    default/lib/libCUDA* \
     default/lib/libKGENCompilerRT* \
     default/lib/liblldb* \
     default/lib/libMojo* \
