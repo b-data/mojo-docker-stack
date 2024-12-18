@@ -1,4 +1,4 @@
-# Mojo docker stack
+# MAX/Mojo docker stack
 
 <!-- markdownlint-disable line-length -->
 [![minimal-readme compliant](https://img.shields.io/badge/readme%20style-minimal-brightgreen.svg)](https://github.com/RichardLitt/standard-readme/blob/master/example-readmes/minimal-readme.md) [![Project Status: Active – The project has reached a stable, usable state and is being actively developed.](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active) <a href="https://liberapay.com/benz0li/donate"><img src="https://liberapay.com/assets/widgets/donate.svg" alt="Donate using Liberapay" height="20"></a>
@@ -6,6 +6,8 @@
 
 Multi-arch (`linux/amd64`, `linux/arm64/v8`) docker images:
 
+* [`glcr.b-data.ch/max/base`](https://gitlab.b-data.ch/max/base/container_registry)
+* [`glcr.b-data.ch/max/scipy`](https://gitlab.b-data.ch/max/scipy/container_registry)
 * [`glcr.b-data.ch/mojo/base`](https://gitlab.b-data.ch/mojo/base/container_registry)
 * [`glcr.b-data.ch/mojo/scipy`](https://gitlab.b-data.ch/mojo/scipy/container_registry)
 
@@ -35,6 +37,9 @@ These images are counterparts to the JupyterLab images but **without**
 
 and any configuration thereof.
 
+:information_source: Regading [Magic](https://docs.modular.com/magic/), see
+[[(JupyterLab) MAX/Mojo docker stack] Why is Magic not installed?](https://github.com/orgs/b-data/discussions/5)
+
 ## Table of Contents
 
 * [Prerequisites](#prerequisites)
@@ -63,10 +68,8 @@ nightly:
 
 ```bash
 docker build \
-  --build-arg MODULAR_VERSION=0.9.2 \
-  --build-arg MODULAR_AUTH_KEY=<your-modular-auth-key> \
   --build-arg MOJO_VERSION=nightly \
-  --build-arg PYTHON_VERSION=3.12.6 \
+  --build-arg PYTHON_VERSION=3.12.8 \
   -t mojo/base:nightly \
   -f base/latest.Dockerfile .
 ```
@@ -75,10 +78,8 @@ latest:
 
 ```bash
 docker build \
-  --build-arg MODULAR_VERSION=0.9.2 \
-  --build-arg MODULAR_AUTH_KEY=<your-modular-auth-key> \
-  --build-arg MOJO_VERSION=24.4.0 \
-  --build-arg PYTHON_VERSION=3.12.6 \
+  --build-arg MOJO_VERSION=24.5.0 \
+  --build-arg PYTHON_VERSION=3.12.8 \
   -t mojo/base \
   -f base/latest.Dockerfile .
 ```
@@ -88,7 +89,6 @@ version:
 ```bash
 docker build \
   -t mojo/base:MAJOR.MINOR.PATCH \
-  --build-arg MODULAR_AUTH_KEY=<your-modular-auth-key> \
   -f base/MAJOR.MINOR.PATCH.Dockerfile .
 ```
 
@@ -110,6 +110,8 @@ docker run -it --rm IMAGE[:MAJOR[.MINOR[.PATCH]]]
 
 `IMAGE` being one of
 
+* [`glcr.b-data.ch/max/base`](https://gitlab.b-data.ch/max/base/container_registry)
+* [`glcr.b-data.ch/max/scipy`](https://gitlab.b-data.ch/max/scipy/container_registry)
 * [`glcr.b-data.ch/mojo/base`](https://gitlab.b-data.ch/mojo/base/container_registry)
 * [`glcr.b-data.ch/mojo/scipy`](https://gitlab.b-data.ch/mojo/scipy/container_registry)
 
@@ -124,7 +126,7 @@ This project follows the
 
 ## Support
 
-Community support: Open a new disussion
+Community support: Open a new discussion
 [here](https://github.com/orgs/b-data/discussions).
 
 Commercial support: Contact b-data by [email](mailto:support@b-data.ch).
