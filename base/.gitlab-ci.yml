@@ -345,7 +345,7 @@ trigger-nightly-cuda-build:
     - apk upgrade --no-cache
     - apk add --update --no-cache curl
   script:
-    - curl -X POST -F token=$CUDA_MOJO_TRIGGER_TOKEN -F ref=main $CUDA_MOJO_TRIGGER_URL
+    - curl -X POST -F token=$CUDA_MOJO_TRIGGER_TOKEN -F ref=nightly $CUDA_MOJO_TRIGGER_URL
   rules:
     - if: $CI_COMMIT_BRANCH == "develop" && $UPDATE_MODE != "true" && $CUDA_IMAGE
       changes:
