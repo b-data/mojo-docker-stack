@@ -41,7 +41,7 @@ These images are counterparts to the JupyterLab images but **without**
 and any configuration thereof.
 
 :information_source: Regading [Magic](https://docs.modular.com/magic/), see
-[[(JupyterLab) MAX/Mojo docker stack] Why is Magic not installed?](https://github.com/orgs/b-data/discussions/5)
+discussion [[(JupyterLab) MAX/Mojo docker stack] Why is Magic not installed?](https://github.com/orgs/b-data/discussions/5)
 
 ## Table of Contents
 
@@ -69,7 +69,7 @@ To install docker, follow the instructions for your platform:
 
 nightly:
 
-```bash
+```shell
 docker build \
   --build-arg MOJO_VERSION=nightly \
   --build-arg PYTHON_VERSION=3.12.8 \
@@ -79,7 +79,7 @@ docker build \
 
 latest:
 
-```bash
+```shell
 docker build \
   --build-arg MOJO_VERSION=24.6.0 \
   --build-arg PYTHON_VERSION=3.12.8 \
@@ -89,7 +89,7 @@ docker build \
 
 version:
 
-```bash
+```shell
 docker build \
   -t mojo/base:MAJOR.MINOR.PATCH \
   -f base/MAJOR.MINOR.PATCH.Dockerfile .
@@ -101,13 +101,13 @@ For `MAJOR.MINOR.PATCH` ≥ `24.3.0`.
 
 self built:
 
-```bash
+```shell
 docker run -it --rm mojo/base[:MAJOR.MINOR.PATCH]
 ```
 
 from the project's GitLab Container Registries:
 
-```bash
+```shell
 docker run -it --rm IMAGE[:MAJOR[.MINOR[.PATCH]]]
 ```
 
