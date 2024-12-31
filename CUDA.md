@@ -1,4 +1,4 @@
-# CUDA-enabled MAX docker stack
+# CUDA-based MAX docker stack
 
 GPU accelerated, multi-arch (`linux/amd64`, `linux/arm64/v8`) docker images:
 
@@ -46,7 +46,7 @@ platform:
 
 latest:
 
-```bash
+```shell
 docker build \
   --build-arg BASE_IMAGE=ubuntu \
   --build-arg BASE_IMAGE_TAG=22.04 \
@@ -61,7 +61,7 @@ docker build \
 
 version:
 
-```bash
+```shell
 docker build \
   --build-arg BASE_IMAGE=ubuntu \
   --build-arg BASE_IMAGE_TAG=22.04 \
@@ -78,7 +78,7 @@ For `MAJOR.MINOR.PATCH` ≥ `24.6.0`.
 
 self built:
 
-```bash
+```shell
 docker run -it --rm \
   --gpus '"device=all"' \
   cuda/max/base[:MAJOR.MINOR.PATCH]
@@ -86,7 +86,7 @@ docker run -it --rm \
 
 from the project's GitLab Container Registries:
 
-```bash
+```shell
 docker run -it --rm \
   --gpus '"device=all"' \
   IMAGE[:MAJOR[.MINOR[.PATCH]]]
@@ -97,6 +97,6 @@ docker run -it --rm \
 * [`glcr.b-data.ch/cuda/max/base`](https://gitlab.b-data.ch/cuda/max/base/container_registry)
 * [`glcr.b-data.ch/cuda/max/scipy`](https://gitlab.b-data.ch/cuda/max/scipy/container_registry)
 
-The CUDA-enabled MAX docker stack is derived from the CUDA-enabled Python docker
+The CUDA-based MAX docker stack is derived from the CUDA-based Python docker
 stack.  
 :information_source: See also [Python docker stack > Notes on CUDA](https://github.com/b-data/python-docker-stack/blob/main/CUDA_NOTES.md).
