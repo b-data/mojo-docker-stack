@@ -17,7 +17,7 @@ FROM glcr.b-data.ch/neovim/nvsi:${NEOVIM_VERSION} AS nvsi
 FROM glcr.b-data.ch/git/gsi/${GIT_VERSION}/${BASE_IMAGE}:${BASE_IMAGE_TAG} AS gsi
 FROM glcr.b-data.ch/git-lfs/glfsi:${GIT_LFS_VERSION} AS glfsi
 
-FROM ${BUILD_ON_IMAGE}${PYTHON_VERSION:+:}${PYTHON_VERSION}${CUDA_IMAGE_FLAVOR:+-}${CUDA_IMAGE_FLAVOR} AS files-max
+FROM ${BUILD_ON_IMAGE}${PYTHON_VERSION:+:}${PYTHON_VERSION}${CUDA_IMAGE_FLAVOR:+-}${CUDA_IMAGE_FLAVOR} AS files-cuda-max
 
 ARG DEBIAN_FRONTEND=noninteractive
 
@@ -28,20 +28,26 @@ RUN mkdir -p /files/opt/nvidia \
   && cp -a cuda/entrypoint.d /files/opt/nvidia \
   && cp -a cuda/nvidia_entrypoint.sh /files/opt/nvidia
 
-FROM ${BUILD_ON_IMAGE}${PYTHON_VERSION:+:}${PYTHON_VERSION}${CUDA_IMAGE_FLAVOR:+-}${CUDA_IMAGE_FLAVOR} AS base-max
+FROM ${BUILD_ON_IMAGE}${PYTHON_VERSION:+:}${PYTHON_VERSION}${CUDA_IMAGE_FLAVOR:+-}${CUDA_IMAGE_FLAVOR} AS base-cuda-max
 
 ## For use with the NVIDIA Container Runtime
 ENV NVIDIA_VISIBLE_DEVICES=all
 ENV NVIDIA_DRIVER_CAPABILITIES=compute,utility
 
 ## Add entrypoint items
-COPY --from=files-max /files /
+COPY --from=files-cuda-max /files /
 ENV NVIDIA_PRODUCT_NAME=CUDA
 ENTRYPOINT ["/opt/nvidia/nvidia_entrypoint.sh"]
 
+FROM ${BUILD_ON_IMAGE}${PYTHON_VERSION:+:}${PYTHON_VERSION}${CUDA_IMAGE_FLAVOR:+-}${CUDA_IMAGE_FLAVOR} AS base-max
+
+## For use with the NVIDIA Container Runtime
+ENV NVIDIA_VISIBLE_DEVICES=all
+ENV NVIDIA_DRIVER_CAPABILITIES=compute,utility
+
 FROM ${BUILD_ON_IMAGE}${PYTHON_VERSION:+:}${PYTHON_VERSION}${CUDA_IMAGE_FLAVOR:+-}${CUDA_IMAGE_FLAVOR} AS base-mojo
 
-FROM base-${BASE_SELECT:-mojo} AS base
+FROM base${CUDA_IMAGE_FLAVOR:+-cuda}-${BASE_SELECT:-mojo} AS base
 
 ARG DEBIAN_FRONTEND=noninteractive
 
