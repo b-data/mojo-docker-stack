@@ -1,8 +1,8 @@
 .env:
   variables:
-    MOJO_VERSION: "24.5.0"
-    PYTHON_VERSION: "3.12.8"
-    TAG_VERSION_MAJ_MIN: "true"
+    MOJO_VERSION: "24.6.0"
+    PYTHON_VERSION: "3.12.9"
+    TAG_VERSION_MAJ_MIN: "false"
     TAG_VERSION_MAJ: "false"
 
 .before-script-build: &before-script-build
@@ -60,8 +60,9 @@ build:nightly-linux-amd64:
       --build-arg BASE_IMAGE_TAG
       --build-arg BUILD_ON_IMAGE
       --build-arg MOJO_VERSION
-      --build-arg INSTALL_MAX
       --build-arg PYTHON_VERSION
+      --build-arg CUDA_IMAGE_FLAVOR
+      --build-arg INSTALL_MAX
       --build-arg BUILD_START=$(date -uIseconds)
       -t $CI_APP_REPO:$CI_APP_TAG-linux-amd64
       -f latest.Dockerfile .
@@ -83,8 +84,9 @@ build:nightly-linux-arm64v8:
       --build-arg BASE_IMAGE_TAG
       --build-arg BUILD_ON_IMAGE
       --build-arg MOJO_VERSION
-      --build-arg INSTALL_MAX
       --build-arg PYTHON_VERSION
+      --build-arg CUDA_IMAGE_FLAVOR
+      --build-arg INSTALL_MAX
       --build-arg BUILD_START=$(date -uIseconds)
       -t $CI_APP_REPO:$CI_APP_TAG-linux-arm64v8
       -f latest.Dockerfile .
@@ -106,8 +108,9 @@ build:latest-linux-amd64:
       --build-arg BASE_IMAGE_TAG
       --build-arg BUILD_ON_IMAGE
       --build-arg MOJO_VERSION
-      --build-arg INSTALL_MAX
       --build-arg PYTHON_VERSION
+      --build-arg CUDA_IMAGE_FLAVOR
+      --build-arg INSTALL_MAX
       --build-arg BUILD_START=$(date -uIseconds)
       -t $CI_APP_REPO:$CI_APP_TAG-linux-amd64
       -t $CI_APP_REPO:latest-linux-amd64
@@ -130,8 +133,9 @@ build:latest-linux-arm64v8:
       --build-arg BASE_IMAGE_TAG
       --build-arg BUILD_ON_IMAGE
       --build-arg MOJO_VERSION
-      --build-arg INSTALL_MAX
       --build-arg PYTHON_VERSION
+      --build-arg CUDA_IMAGE_FLAVOR
+      --build-arg INSTALL_MAX
       --build-arg BUILD_START=$(date -uIseconds)
       -t $CI_APP_REPO:$CI_APP_TAG-linux-arm64v8
       -t $CI_APP_REPO:latest-linux-arm64v8
@@ -153,6 +157,7 @@ build:version-linux-amd64:
       --build-arg BASE_IMAGE
       --build-arg BASE_IMAGE_TAG
       --build-arg BUILD_ON_IMAGE
+      --build-arg CUDA_IMAGE_FLAVOR
       --build-arg INSTALL_MAX
       --build-arg BUILD_START=$(date -uIseconds)
       -t $CI_APP_REPO:$CI_APP_TAG-linux-amd64
@@ -174,6 +179,7 @@ build:version-linux-arm64v8:
       --build-arg BASE_IMAGE
       --build-arg BASE_IMAGE_TAG
       --build-arg BUILD_ON_IMAGE
+      --build-arg CUDA_IMAGE_FLAVOR
       --build-arg INSTALL_MAX
       --build-arg BUILD_START=$(date -uIseconds)
       -t $CI_APP_REPO:$CI_APP_TAG-linux-arm64v8
@@ -328,5 +334,47 @@ trigger-version-build:
     - if: $CUDA_IMAGE
       when: never
     - if: $CI_COMMIT_BRANCH == "freeze-version"
+      changes:
+        - base/$MOJO_VERSION.Dockerfile
+
+trigger-nightly-cuda-build:
+  extends: .post
+  stage: .post
+  needs: ["build-manifest:nightly-linux-multiarch"]
+  before_script:
+    - apk upgrade --no-cache
+    - apk add --update --no-cache curl
+  script:
+    - curl -X POST -F token=$CUDA_MOJO_TRIGGER_TOKEN -F ref=develop $CUDA_MOJO_TRIGGER_URL
+  rules:
+    - if: $CI_COMMIT_BRANCH == "develop" && $UPDATE_MODE != "true" && $CUDA_IMAGE
+      changes:
+        - base/latest.Dockerfile
+
+trigger-latest-cuda-build:
+  extends: .post
+  stage: .post
+  needs: ["build-manifest:latest-linux-multiarch"]
+  before_script:
+    - apk upgrade --no-cache
+    - apk add --update --no-cache curl
+  script:
+    - curl -X POST -F token=$CUDA_MOJO_TRIGGER_TOKEN -F ref=main $CUDA_MOJO_TRIGGER_URL
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main" && $UPDATE_MODE != "true" && $CUDA_IMAGE
+      changes:
+        - base/latest.Dockerfile
+
+trigger-version-cuda-build:
+  extends: .post
+  stage: .post
+  needs: ["build-manifest:version-linux-multiarch"]
+  before_script:
+    - apk upgrade --no-cache
+    - apk add --update --no-cache curl
+  script:
+    - curl -X POST -F token=$CUDA_MOJO_TRIGGER_TOKEN -F ref=freeze-version $CUDA_MOJO_TRIGGER_URL
+  rules:
+    - if: $CI_COMMIT_BRANCH == "freeze-version" && $CUDA_IMAGE
       changes:
         - base/$MOJO_VERSION.Dockerfile

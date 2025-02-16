@@ -4,6 +4,9 @@
 [![minimal-readme compliant](https://img.shields.io/badge/readme%20style-minimal-brightgreen.svg)](https://github.com/RichardLitt/standard-readme/blob/master/example-readmes/minimal-readme.md) [![Project Status: Active – The project has reached a stable, usable state and is being actively developed.](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active) <a href="https://liberapay.com/benz0li/donate"><img src="https://liberapay.com/assets/widgets/donate.svg" alt="Donate using Liberapay" height="20"></a>
 <!-- markdownlint-enable line-length -->
 
+| See the [CUDA-based MAX docker stack](CUDA.md) for GPU accelerated docker images. |
+|-----------------------------------------------------------------------------------|
+
 Multi-arch (`linux/amd64`, `linux/arm64/v8`) docker images:
 
 * [`glcr.b-data.ch/max/base`](https://gitlab.b-data.ch/max/base/container_registry)
@@ -38,7 +41,7 @@ These images are counterparts to the JupyterLab images but **without**
 and any configuration thereof.
 
 :information_source: Regading [Magic](https://docs.modular.com/magic/), see
-[[(JupyterLab) MAX/Mojo docker stack] Why is Magic not installed?](https://github.com/orgs/b-data/discussions/5)
+discussion [[(JupyterLab) MAX/Mojo docker stack] Why is Magic not installed?](https://github.com/orgs/b-data/discussions/5)
 
 ## Table of Contents
 
@@ -66,27 +69,27 @@ To install docker, follow the instructions for your platform:
 
 nightly:
 
-```bash
+```shell
 docker build \
   --build-arg MOJO_VERSION=nightly \
-  --build-arg PYTHON_VERSION=3.12.8 \
+  --build-arg PYTHON_VERSION=3.12.9 \
   -t mojo/base:nightly \
   -f base/latest.Dockerfile .
 ```
 
 latest:
 
-```bash
+```shell
 docker build \
-  --build-arg MOJO_VERSION=24.5.0 \
-  --build-arg PYTHON_VERSION=3.12.8 \
+  --build-arg MOJO_VERSION=24.6.0 \
+  --build-arg PYTHON_VERSION=3.12.9 \
   -t mojo/base \
   -f base/latest.Dockerfile .
 ```
 
 version:
 
-```bash
+```shell
 docker build \
   -t mojo/base:MAJOR.MINOR.PATCH \
   -f base/MAJOR.MINOR.PATCH.Dockerfile .
@@ -98,13 +101,13 @@ For `MAJOR.MINOR.PATCH` ≥ `24.3.0`.
 
 self built:
 
-```bash
+```shell
 docker run -it --rm mojo/base[:MAJOR.MINOR.PATCH]
 ```
 
 from the project's GitLab Container Registries:
 
-```bash
+```shell
 docker run -it --rm IMAGE[:MAJOR[.MINOR[.PATCH]]]
 ```
 

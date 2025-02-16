@@ -3,27 +3,75 @@ ARG BASE_IMAGE_TAG=12
 ARG BUILD_ON_IMAGE=glcr.b-data.ch/python/ver
 ARG MOJO_VERSION
 ARG PYTHON_VERSION
-ARG NEOVIM_VERSION=0.10.2
-ARG GIT_VERSION=2.47.1
-ARG GIT_LFS_VERSION=3.6.0
+ARG CUDA_IMAGE_FLAVOR
+
+ARG NEOVIM_VERSION=0.10.4
+ARG GIT_VERSION=2.48.1
+ARG GIT_LFS_VERSION=3.6.1
 ARG PANDOC_VERSION=3.4
+
+ARG INSTALL_MAX
+ARG BASE_SELECT=${INSTALL_MAX:+max}
 
 FROM glcr.b-data.ch/neovim/nvsi:${NEOVIM_VERSION} AS nvsi
 FROM glcr.b-data.ch/git/gsi/${GIT_VERSION}/${BASE_IMAGE}:${BASE_IMAGE_TAG} AS gsi
 FROM glcr.b-data.ch/git-lfs/glfsi:${GIT_LFS_VERSION} AS glfsi
 
-FROM ${BUILD_ON_IMAGE}${PYTHON_VERSION:+:$PYTHON_VERSION} AS base
+FROM ${BUILD_ON_IMAGE}${PYTHON_VERSION:+:}${PYTHON_VERSION}${CUDA_IMAGE_FLAVOR:+-}${CUDA_IMAGE_FLAVOR} AS files-cuda-max
+
+ARG DEBIAN_FRONTEND=noninteractive
+
+RUN mkdir -p /files/opt/nvidia \
+  && apt-get update \
+  && apt-get -y install --no-install-recommends git \
+  && git clone https://gitlab.com/nvidia/container-images/cuda.git \
+  && cp -a cuda/entrypoint.d /files/opt/nvidia \
+  && cp -a cuda/nvidia_entrypoint.sh /files/opt/nvidia
+
+FROM ${BUILD_ON_IMAGE}${PYTHON_VERSION:+:}${PYTHON_VERSION}${CUDA_IMAGE_FLAVOR:+-}${CUDA_IMAGE_FLAVOR} AS base-cuda-max
+
+## For use with the NVIDIA Container Runtime
+ENV NVIDIA_VISIBLE_DEVICES=all
+ENV NVIDIA_DRIVER_CAPABILITIES=compute,utility
+
+## Add entrypoint items
+COPY --from=files-cuda-max /files /
+ENV NVIDIA_PRODUCT_NAME=CUDA
+ENTRYPOINT ["/opt/nvidia/nvidia_entrypoint.sh"]
+
+FROM ${BUILD_ON_IMAGE}${PYTHON_VERSION:+:}${PYTHON_VERSION}${CUDA_IMAGE_FLAVOR:+-}${CUDA_IMAGE_FLAVOR} AS base-max
+
+## For use with the NVIDIA Container Runtime
+ENV NVIDIA_VISIBLE_DEVICES=all
+ENV NVIDIA_DRIVER_CAPABILITIES=compute,utility
+
+FROM ${BUILD_ON_IMAGE}${PYTHON_VERSION:+:}${PYTHON_VERSION}${CUDA_IMAGE_FLAVOR:+-}${CUDA_IMAGE_FLAVOR} AS base-mojo
+
+FROM base${CUDA_IMAGE_FLAVOR:+-cuda}-${BASE_SELECT:-mojo} AS base
 
 ARG DEBIAN_FRONTEND=noninteractive
 
 ARG BUILD_ON_IMAGE
 ARG MOJO_VERSION
+ARG CUDA_IMAGE_FLAVOR
+
 ARG NEOVIM_VERSION
 ARG GIT_VERSION
 ARG GIT_LFS_VERSION
 ARG PANDOC_VERSION
 
-ENV PARENT_IMAGE=${BUILD_ON_IMAGE}${PYTHON_VERSION:+:$PYTHON_VERSION} \
+ARG CUDA_IMAGE_LICENSE=${CUDA_VERSION:+"NVIDIA Deep Learning Container License"}
+ARG IMAGE_LICENSE=${CUDA_IMAGE_LICENSE:-"MIT"}
+ARG IMAGE_SOURCE=https://gitlab.b-data.ch/mojo/docker-stack
+ARG IMAGE_VENDOR="b-data GmbH"
+ARG IMAGE_AUTHORS="Olivier Benz <olivier.benz@b-data.ch>"
+
+LABEL org.opencontainers.image.licenses="$IMAGE_LICENSE" \
+      org.opencontainers.image.source="$IMAGE_SOURCE" \
+      org.opencontainers.image.vendor="$IMAGE_VENDOR" \
+      org.opencontainers.image.authors="$IMAGE_AUTHORS"
+
+ENV PARENT_IMAGE=${BUILD_ON_IMAGE}${PYTHON_VERSION:+:}${PYTHON_VERSION}${CUDA_IMAGE_FLAVOR:+-}${CUDA_IMAGE_FLAVOR} \
     NEOVIM_VERSION=${NEOVIM_VERSION} \
     MODULAR_HOME=/opt/modular/share/max \
     MOJO_VERSION=${MOJO_VERSION%%-*} \
@@ -133,13 +181,15 @@ ARG MOJO_VERSION
 ARG INSTALL_MAX
 
   ## Install Magic
-RUN curl -ssL https://magic.modular.com | bash \
+RUN export MODULAR_HOME="$HOME/.modular" \
+  && curl -ssL https://magic.modular.com | bash \
   && mv ${HOME}/.modular/bin/magic /usr/local/bin \
   ## Clean up
   && rm -rf ${HOME}/.modular \
-  && rm -rf /usr/local/lib/python${PYTHON_VERSION%.*}/site-packages/* \
+  && rm -rf /usr/local/lib/python${PYTHON_VERSION%.*}/site-packages/*
+
   ## Install MAX/Mojo
-  && cd /tmp \
+RUN cd /tmp \
   && if [ "${INSTALL_MAX}" = "1" ] || [ "${INSTALL_MAX}" = "true" ]; then \
     if [ "${MOJO_VERSION}" = "nightly" ]; then \
       magic init -c conda-forge -c https://conda.modular.com/max-nightly; \
@@ -166,7 +216,6 @@ RUN curl -ssL https://magic.modular.com | bash \
   && mkdir -p /opt/modular/share \
   && cd /tmp/.magic/envs \
   && if [ "${INSTALL_MAX}" = "1" ] || [ "${INSTALL_MAX}" = "true" ]; then \
-    cp -a default/bin/max /opt/modular/bin; \
     cp -a default/lib/libDevice* \
       default/lib/libGenericMLSupport* \
       default/lib/libmodular* \
@@ -189,8 +238,10 @@ RUN curl -ssL https://magic.modular.com | bash \
     default/bin/mojo* \
     /opt/modular/bin \
   && cp -a default/lib/libAsyncRT* \
+    default/lib/libATenRT.so \
     default/lib/libKGENCompilerRT* \
     default/lib/liblldb* \
+    default/lib/libMGPRT.so \
     default/lib/libMojo* \
     default/lib/libMSupport* \
     default/lib/liborc_rt.a \
@@ -231,6 +282,9 @@ RUN mkdir -p /usr/local/share/jupyter/kernels \
       /usr/local/share/jupyter/kernels/mojo*/logo-64x64.png; \
     cp -a /usr/local/share/jupyter/kernels/mojo*/nightly-logo.svg \
       /usr/local/share/jupyter/kernels/mojo*/logo.svg; \
+  else \
+    ## Fix argv --mojo-config-section
+    sed -i "s|max-nightly|max|g" /usr/local/share/jupyter/kernels/mojo*/kernel.json; \
   fi
 
 FROM base
@@ -248,8 +302,8 @@ COPY --from=modular /usr/local/share/jupyter /usr/local/share/jupyter
 COPY --from=modular /usr/local/lib/python${PYTHON_VERSION%.*}/site-packages \
   /usr/local/lib/python${PYTHON_VERSION%.*}/site-packages
 
-RUN curl -ssL https://magic.modular.com | grep '^MODULAR_HOME\|^BIN_DIR' \
-    > /tmp/magicenv \
+RUN echo MODULAR_HOME=\"\$HOME/.modular\" > /tmp/magicenv \
+  && curl -ssL https://magic.modular.com | grep '^BIN_DIR' >> /tmp/magicenv \
   && cp /tmp/magicenv /var/tmp/magicenv.bak \
   && cp /tmp/magicenv /tmp/magicenv.mod \
   ## Create the user's modular bin dir
@@ -267,6 +321,10 @@ RUN curl -ssL https://magic.modular.com | grep '^MODULAR_HOME\|^BIN_DIR' \
   ## MAX/Mojo: Install Python dependencies
   && export PIP_BREAK_SYSTEM_PACKAGES=1 \
   && if [ "${INSTALL_MAX}" = "1" ] || [ "${INSTALL_MAX}" = "true" ]; then \
+    if [ -z "${CUDA_VERSION}" ]; then \
+      ## MAX: Install CPU-only version of PyTorch in regular images
+      export PIP_EXTRA_INDEX_URL="https://download.pytorch.org/whl/cpu"; \
+    fi; \
     packages=$(grep "Requires-Dist:" \
       /usr/local/lib/python${PYTHON_VERSION%.*}/site-packages/max*.dist-info/METADATA | \
       sed "s|Requires-Dist: \(.*\)|\1|" | \

@@ -16,6 +16,7 @@
 !/.hadolint.yml
 !/.markdownlint.yml
 !/CODE_OF_CONDUCT.md
+!/CUDA.md
 !/LICENSE
 !/NOTES.md
 !/README.md
