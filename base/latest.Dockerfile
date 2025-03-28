@@ -5,7 +5,7 @@ ARG MOJO_VERSION
 ARG PYTHON_VERSION
 ARG CUDA_IMAGE_FLAVOR
 
-ARG NEOVIM_VERSION=0.10.4
+ARG NEOVIM_VERSION=0.11.0
 ARG GIT_VERSION=2.49.0
 ARG GIT_LFS_VERSION=3.6.1
 ARG PANDOC_VERSION=3.4
@@ -330,6 +330,8 @@ RUN echo MODULAR_HOME=\"\$HOME/.modular\" > /tmp/magicenv \
     packages=$(grep "Requires-Dist:" \
       /usr/local/lib/python${PYTHON_VERSION%.*}/site-packages/max*.dist-info/METADATA | \
       sed "s|Requires-Dist: \(.*\)|\1|" | \
+      cut -d ";" -f 1 | \
+      sed "s|xgrammar==|xgrammar>=|g" | \
       tr -d "[:blank:]"); \
     pip install $packages; \
   else \
