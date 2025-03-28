@@ -2,10 +2,12 @@
 
 !/.github/
 !/base/
+!/base/requirements/
 !/scipy/
 
 !/.github/FUNDING.yml
 !/base/.gitlab-ci.yml
+!/base/requirements/*requirements.txt
 !/base/*.Dockerfile
 !/scipy/.gitlab-ci.yml
 !/scipy/*.Dockerfile
