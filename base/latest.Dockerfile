@@ -6,7 +6,7 @@ ARG PYTHON_VERSION
 ARG CUDA_IMAGE_FLAVOR
 
 ARG NEOVIM_VERSION=0.10.4
-ARG GIT_VERSION=2.48.1
+ARG GIT_VERSION=2.49.0
 ARG GIT_LFS_VERSION=3.6.1
 ARG PANDOC_VERSION=3.4
 
@@ -33,6 +33,7 @@ FROM ${BUILD_ON_IMAGE}${PYTHON_VERSION:+:}${PYTHON_VERSION}${CUDA_IMAGE_FLAVOR:+
 ## For use with the NVIDIA Container Runtime
 ENV NVIDIA_VISIBLE_DEVICES=all
 ENV NVIDIA_DRIVER_CAPABILITIES=compute,utility
+ENV NVIDIA_PRODUCT_NAME=CUDA
 
 ## Add entrypoint items
 COPY --from=files-cuda-max /files /
@@ -193,10 +194,10 @@ RUN cd /tmp \
   && if [ "${INSTALL_MAX}" = "1" ] || [ "${INSTALL_MAX}" = "true" ]; then \
     if [ "${MOJO_VERSION}" = "nightly" ]; then \
       magic init -c conda-forge -c https://conda.modular.com/max-nightly; \
-      magic add max; \
+      magic add max max-pipelines; \
     else \
       magic init -c conda-forge -c https://conda.modular.com/max; \
-      magic add max==${MOJO_VERSION}; \
+      magic add max==${MOJO_VERSION} max-pipelines==${MOJO_VERSION}; \
     fi \
   else \
     if [ "${MOJO_VERSION}" = "nightly" ]; then \
@@ -208,7 +209,7 @@ RUN cd /tmp \
     fi \
   fi \
   ## Disable telemetry
-  && magic telemetry --disable \
+  && magic telemetry --manifest-path pixi.toml --disable \
   ## Get rid of all the unnecessary stuff
   ## and move installation to /opt/modular
   && mkdir -p /opt/modular/bin \
@@ -216,6 +217,8 @@ RUN cd /tmp \
   && mkdir -p /opt/modular/share \
   && cd /tmp/.magic/envs \
   && if [ "${INSTALL_MAX}" = "1" ] || [ "${INSTALL_MAX}" = "true" ]; then \
+    cp -a default/bin/max* \
+      /opt/modular/bin; \
     cp -a default/lib/libDevice* \
       default/lib/libGenericMLSupport* \
       default/lib/libmodular* \
@@ -223,12 +226,9 @@ RUN cd /tmp \
       default/lib/*MOGG* \
       default/lib/libmonnx.so \
       default/lib/libmtorch.so \
-      default/lib/libServe* \
       default/lib/libStock* \
       default/lib/libTorch* \
       /opt/modular/lib; \
-  fi \
-  && if [ "${INSTALL_MAX}" = "1" ] || [ "${INSTALL_MAX}" = "true" ]; then \
     cp -a default/lib/python${PYTHON_VERSION%.*}/site-packages/max* \
       /usr/local/lib/python${PYTHON_VERSION%.*}/site-packages; \
   fi \
@@ -258,6 +258,12 @@ RUN cd /tmp \
   ## Fix Modular home for Mojo
   && sed -i "s|/tmp/.magic/envs/default|/opt/modular|g" \
     ${MODULAR_HOME}/modular.cfg \
+  && if [ "${INSTALL_MAX}" = "1" ] || [ "${INSTALL_MAX}" = "true" ]; then \
+    ## Fix Python path for max-serve, max-pipelines
+    sed -i "s|/tmp/.magic/envs/default|/usr/local|g" \
+      /opt/modular/bin/max-serve \
+      /opt/modular/bin/max-pipelines; \
+  fi \
   ## Fix Python path for mblack
   && sed -i "s|/tmp/.magic/envs/default|/usr/local|g" \
     /opt/modular/bin/mblack \
@@ -282,9 +288,6 @@ RUN mkdir -p /usr/local/share/jupyter/kernels \
       /usr/local/share/jupyter/kernels/mojo*/logo-64x64.png; \
     cp -a /usr/local/share/jupyter/kernels/mojo*/nightly-logo.svg \
       /usr/local/share/jupyter/kernels/mojo*/logo.svg; \
-  else \
-    ## Fix argv --mojo-config-section
-    sed -i "s|max-nightly|max|g" /usr/local/share/jupyter/kernels/mojo*/kernel.json; \
   fi
 
 FROM base
