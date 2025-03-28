@@ -1,8 +1,8 @@
 ARG BASE_IMAGE=debian
 ARG BASE_IMAGE_TAG=12
 ARG BUILD_ON_IMAGE=glcr.b-data.ch/python/ver
-ARG MOJO_VERSION
-ARG PYTHON_VERSION
+ARG MOJO_VERSION=25.1.0
+ARG PYTHON_VERSION=3.12.9
 ARG CUDA_IMAGE_FLAVOR
 
 ARG NEOVIM_VERSION=0.10.4
@@ -304,6 +304,8 @@ COPY --from=modular /usr/local/share/jupyter /usr/local/share/jupyter
 COPY --from=modular /usr/local/lib/python${PYTHON_VERSION%.*}/site-packages \
   /usr/local/lib/python${PYTHON_VERSION%.*}/site-packages
 
+COPY requirements /var/tmp
+
 RUN echo MODULAR_HOME=\"\$HOME/.modular\" > /tmp/magicenv \
   && curl -ssL https://magic.modular.com | grep '^BIN_DIR' >> /tmp/magicenv \
   && cp /tmp/magicenv /var/tmp/magicenv.bak \
@@ -332,13 +334,15 @@ RUN echo MODULAR_HOME=\"\$HOME/.modular\" > /tmp/magicenv \
       sed "s|Requires-Dist: \(.*\)|\1|" | \
       tr -d "[:blank:]"); \
     pip install $packages; \
+    pip install -r /var/tmp/max-pipelines-25.1.0-requirements.txt; \
   else \
     pip install numpy; \
   fi \
   ## Clean up
   && rm -rf ${HOME}/.cache \
     /tmp/magicenv \
-    /tmp/magicenv.mod
+    /tmp/magicenv.mod \
+    /var/tmp/max-pipelines-25.1.0-requirements.txt
 
 ARG BUILD_START
 
