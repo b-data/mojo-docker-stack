@@ -61,7 +61,7 @@ ARG GIT_LFS_VERSION
 ARG PANDOC_VERSION
 
 ARG CUDA_IMAGE_LICENSE=${CUDA_VERSION:+"NVIDIA Deep Learning Container License"}
-ARG IMAGE_LICENSE=${CUDA_IMAGE_LICENSE:-"MIT"}
+ARG IMAGE_LICENSE=${CUDA_IMAGE_LICENSE:-"MAX Community License"}
 ARG IMAGE_SOURCE=https://gitlab.b-data.ch/mojo/docker-stack
 ARG IMAGE_VENDOR="b-data GmbH"
 ARG IMAGE_AUTHORS="Olivier Benz <olivier.benz@b-data.ch>"
