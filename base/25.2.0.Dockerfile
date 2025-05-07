@@ -1,14 +1,14 @@
 ARG BASE_IMAGE=debian
 ARG BASE_IMAGE_TAG=12
 ARG BUILD_ON_IMAGE=glcr.b-data.ch/python/ver
-ARG MOJO_VERSION=25.1.0
-ARG PYTHON_VERSION=3.12.9
+ARG MOJO_VERSION=25.2.0
+ARG PYTHON_VERSION=3.12.10
 ARG CUDA_IMAGE_FLAVOR
 
-ARG NEOVIM_VERSION=0.10.4
+ARG NEOVIM_VERSION=0.11.1
 ARG GIT_VERSION=2.49.0
 ARG GIT_LFS_VERSION=3.6.1
-ARG PANDOC_VERSION=3.4
+ARG PANDOC_VERSION=3.6.3
 
 ARG INSTALL_MAX
 ARG BASE_SELECT=${INSTALL_MAX:+max}
@@ -304,10 +304,8 @@ COPY --from=modular /usr/local/share/jupyter /usr/local/share/jupyter
 COPY --from=modular /usr/local/lib/python${PYTHON_VERSION%.*}/site-packages \
   /usr/local/lib/python${PYTHON_VERSION%.*}/site-packages
 
-COPY requirements /var/tmp
-
 RUN echo MODULAR_HOME=\"\$HOME/.modular\" > /tmp/magicenv \
-  && curl -ssL https://magic.modular.com | grep '^BIN_DIR' >> /tmp/magicenv \
+  && echo BIN_DIR=\"\$MODULAR_HOME/bin\" >> /tmp/magicenv \
   && cp /tmp/magicenv /var/tmp/magicenv.bak \
   && cp /tmp/magicenv /tmp/magicenv.mod \
   ## Create the user's modular bin dir
@@ -332,17 +330,17 @@ RUN echo MODULAR_HOME=\"\$HOME/.modular\" > /tmp/magicenv \
     packages=$(grep "Requires-Dist:" \
       /usr/local/lib/python${PYTHON_VERSION%.*}/site-packages/max*.dist-info/METADATA | \
       sed "s|Requires-Dist: \(.*\)|\1|" | \
+      cut -d ";" -f 1 | \
+      sed "s|xgrammar==|xgrammar>=|g" | \
       tr -d "[:blank:]"); \
     pip install $packages; \
-    pip install -r /var/tmp/max-pipelines-25.1.0-requirements.txt; \
   else \
     pip install numpy; \
   fi \
   ## Clean up
   && rm -rf ${HOME}/.cache \
     /tmp/magicenv \
-    /tmp/magicenv.mod \
-    /var/tmp/max-pipelines-25.1.0-requirements.txt
+    /tmp/magicenv.mod
 
 ARG BUILD_START
 
