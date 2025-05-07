@@ -220,10 +220,9 @@ RUN cd /tmp \
       /opt/modular/bin; \
     cp -a default/lib/libDevice* \
       default/lib/libGenericMLSupport* \
+      default/lib/libmax.so \
       default/lib/libmodular* \
-      default/lib/libmof.so \
       default/lib/*MOGG* \
-      default/lib/libmonnx.so \
       default/lib/libmtorch.so \
       default/lib/libStock* \
       default/lib/libTorch* \
@@ -321,6 +320,8 @@ RUN echo MODULAR_HOME=\"\$HOME/.modular\" > /tmp/magicenv \
   && HOME=/etc/skel . /tmp/magicenv \
   && mkdir -p ${BIN_DIR} \
   ## MAX/Mojo: Install Python dependencies
+  && apt-get update \
+  && apt-get -y install --no-install-recommends cmake \
   && export PIP_BREAK_SYSTEM_PACKAGES=1 \
   && if [ "${INSTALL_MAX}" = "1" ] || [ "${INSTALL_MAX}" = "true" ]; then \
     if [ -z "${CUDA_VERSION}" ]; then \
@@ -338,9 +339,12 @@ RUN echo MODULAR_HOME=\"\$HOME/.modular\" > /tmp/magicenv \
     pip install numpy; \
   fi \
   ## Clean up
+  && apt-get -y purge cmake \
+  && apt-get -y autoremove \
   && rm -rf ${HOME}/.cache \
     /tmp/magicenv \
-    /tmp/magicenv.mod
+    /tmp/magicenv.mod \
+    /var/lib/apt/lists/*
 
 ARG BUILD_START
 
