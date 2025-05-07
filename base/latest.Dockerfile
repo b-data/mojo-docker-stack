@@ -5,10 +5,10 @@ ARG MOJO_VERSION
 ARG PYTHON_VERSION
 ARG CUDA_IMAGE_FLAVOR
 
-ARG NEOVIM_VERSION=0.10.4
+ARG NEOVIM_VERSION=0.11.1
 ARG GIT_VERSION=2.49.0
 ARG GIT_LFS_VERSION=3.6.1
-ARG PANDOC_VERSION=3.4
+ARG PANDOC_VERSION=3.6.3
 
 ARG INSTALL_MAX
 ARG BASE_SELECT=${INSTALL_MAX:+max}
@@ -33,7 +33,6 @@ FROM ${BUILD_ON_IMAGE}${PYTHON_VERSION:+:}${PYTHON_VERSION}${CUDA_IMAGE_FLAVOR:+
 ## For use with the NVIDIA Container Runtime
 ENV NVIDIA_VISIBLE_DEVICES=all
 ENV NVIDIA_DRIVER_CAPABILITIES=compute,utility
-ENV NVIDIA_PRODUCT_NAME=CUDA
 
 ## Add entrypoint items
 COPY --from=files-cuda-max /files /
@@ -62,7 +61,7 @@ ARG GIT_LFS_VERSION
 ARG PANDOC_VERSION
 
 ARG CUDA_IMAGE_LICENSE=${CUDA_VERSION:+"NVIDIA Deep Learning Container License"}
-ARG IMAGE_LICENSE=${CUDA_IMAGE_LICENSE:-"MIT"}
+ARG IMAGE_LICENSE=${CUDA_IMAGE_LICENSE:-"MAX Community License"}
 ARG IMAGE_SOURCE=https://gitlab.b-data.ch/mojo/docker-stack
 ARG IMAGE_VENDOR="b-data GmbH"
 ARG IMAGE_AUTHORS="Olivier Benz <olivier.benz@b-data.ch>"
@@ -306,7 +305,7 @@ COPY --from=modular /usr/local/lib/python${PYTHON_VERSION%.*}/site-packages \
   /usr/local/lib/python${PYTHON_VERSION%.*}/site-packages
 
 RUN echo MODULAR_HOME=\"\$HOME/.modular\" > /tmp/magicenv \
-  && curl -ssL https://magic.modular.com | grep '^BIN_DIR' >> /tmp/magicenv \
+  && echo BIN_DIR=\"\$MODULAR_HOME/bin\" >> /tmp/magicenv \
   && cp /tmp/magicenv /var/tmp/magicenv.bak \
   && cp /tmp/magicenv /tmp/magicenv.mod \
   ## Create the user's modular bin dir
@@ -331,6 +330,8 @@ RUN echo MODULAR_HOME=\"\$HOME/.modular\" > /tmp/magicenv \
     packages=$(grep "Requires-Dist:" \
       /usr/local/lib/python${PYTHON_VERSION%.*}/site-packages/max*.dist-info/METADATA | \
       sed "s|Requires-Dist: \(.*\)|\1|" | \
+      cut -d ";" -f 1 | \
+      sed "s|xgrammar==|xgrammar>=|g" | \
       tr -d "[:blank:]"); \
     pip install $packages; \
   else \

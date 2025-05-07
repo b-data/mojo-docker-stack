@@ -72,7 +72,7 @@ nightly:
 ```shell
 docker build \
   --build-arg MOJO_VERSION=nightly \
-  --build-arg PYTHON_VERSION=3.12.9 \
+  --build-arg PYTHON_VERSION=3.12.10 \
   -t mojo/base:nightly \
   -f base/latest.Dockerfile .
 ```
@@ -81,8 +81,8 @@ latest:
 
 ```shell
 docker build \
-  --build-arg MOJO_VERSION=25.1.0 \
-  --build-arg PYTHON_VERSION=3.12.9 \
+  --build-arg MOJO_VERSION=25.2.0 \
+  --build-arg PYTHON_VERSION=3.12.10 \
   -t mojo/base \
   -f base/latest.Dockerfile .
 ```
