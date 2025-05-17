@@ -223,7 +223,6 @@ RUN cd /tmp \
       default/lib/libmax.so \
       default/lib/libmodular* \
       default/lib/*MOGG* \
-      default/lib/libmtorch.so \
       default/lib/libStock* \
       default/lib/libTorch* \
       /opt/modular/lib; \
