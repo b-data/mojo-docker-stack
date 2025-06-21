@@ -5,8 +5,8 @@ ARG MOJO_VERSION
 ARG PYTHON_VERSION
 ARG CUDA_IMAGE_FLAVOR
 
-ARG NEOVIM_VERSION=0.11.1
-ARG GIT_VERSION=2.49.0
+ARG NEOVIM_VERSION=0.11.2
+ARG GIT_VERSION=2.50.0
 ARG GIT_LFS_VERSION=3.6.1
 ARG PANDOC_VERSION=3.6.3
 
@@ -61,7 +61,7 @@ ARG GIT_LFS_VERSION
 ARG PANDOC_VERSION
 
 ARG CUDA_IMAGE_LICENSE=${CUDA_VERSION:+"NVIDIA Deep Learning Container License"}
-ARG IMAGE_LICENSE=${CUDA_IMAGE_LICENSE:-"MAX Community License"}
+ARG IMAGE_LICENSE=${CUDA_IMAGE_LICENSE:-"Modular Community License"}
 ARG IMAGE_SOURCE=https://gitlab.b-data.ch/mojo/docker-stack
 ARG IMAGE_VENDOR="b-data GmbH"
 ARG IMAGE_AUTHORS="Olivier Benz <olivier.benz@b-data.ch>"
@@ -193,18 +193,18 @@ RUN cd /tmp \
   && if [ "${INSTALL_MAX}" = "1" ] || [ "${INSTALL_MAX}" = "true" ]; then \
     if [ "${MOJO_VERSION}" = "nightly" ]; then \
       magic init -c conda-forge -c https://conda.modular.com/max-nightly; \
-      magic add max max-pipelines; \
+      magic add max max-pipelines python==${PYTHON_VERSION%.*}; \
     else \
       magic init -c conda-forge -c https://conda.modular.com/max; \
-      magic add max==${MOJO_VERSION} max-pipelines==${MOJO_VERSION}; \
+      magic add max==${MOJO_VERSION} max-pipelines==${MOJO_VERSION} python==${PYTHON_VERSION%.*}; \
     fi \
   else \
     if [ "${MOJO_VERSION}" = "nightly" ]; then \
       magic init -c conda-forge -c https://conda.modular.com/max-nightly; \
-      magic add mojo-jupyter; \
+      magic add mojo-jupyter python==${PYTHON_VERSION%.*}; \
     else \
       magic init -c conda-forge -c https://conda.modular.com/max; \
-      magic add mojo-jupyter==${MOJO_VERSION}; \
+      magic add mojo-jupyter==${MOJO_VERSION} python==${PYTHON_VERSION%.*}; \
     fi \
   fi \
   ## Disable telemetry
@@ -220,10 +220,9 @@ RUN cd /tmp \
       /opt/modular/bin; \
     cp -a default/lib/libDevice* \
       default/lib/libGenericMLSupport* \
+      default/lib/libmax.so \
       default/lib/libmodular* \
-      default/lib/libmof.so \
       default/lib/*MOGG* \
-      default/lib/libmonnx.so \
       default/lib/libmtorch.so \
       default/lib/libStock* \
       default/lib/libTorch* \
@@ -321,11 +320,15 @@ RUN echo MODULAR_HOME=\"\$HOME/.modular\" > /tmp/magicenv \
   && HOME=/etc/skel . /tmp/magicenv \
   && mkdir -p ${BIN_DIR} \
   ## MAX/Mojo: Install Python dependencies
+  && apt-get update \
+  && apt-get -y install --no-install-recommends cmake \
   && export PIP_BREAK_SYSTEM_PACKAGES=1 \
   && if [ "${INSTALL_MAX}" = "1" ] || [ "${INSTALL_MAX}" = "true" ]; then \
     if [ -z "${CUDA_VERSION}" ]; then \
       ## MAX: Install CPU-only version of PyTorch in regular images
       export PIP_EXTRA_INDEX_URL="https://download.pytorch.org/whl/cpu"; \
+    else \
+      export PIP_EXTRA_INDEX_URL="https://download.pytorch.org/whl/cu126"; \
     fi; \
     packages=$(grep "Requires-Dist:" \
       /usr/local/lib/python${PYTHON_VERSION%.*}/site-packages/max*.dist-info/METADATA | \
@@ -338,9 +341,12 @@ RUN echo MODULAR_HOME=\"\$HOME/.modular\" > /tmp/magicenv \
     pip install numpy; \
   fi \
   ## Clean up
+  && apt-get -y purge cmake \
+  && apt-get -y autoremove \
   && rm -rf ${HOME}/.cache \
     /tmp/magicenv \
-    /tmp/magicenv.mod
+    /tmp/magicenv.mod \
+    /var/lib/apt/lists/*
 
 ARG BUILD_START
 
