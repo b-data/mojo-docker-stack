@@ -223,7 +223,6 @@ RUN cd /tmp \
       default/lib/libmax.so \
       default/lib/libmodular* \
       default/lib/*MOGG* \
-      default/lib/libmtorch.so \
       default/lib/libStock* \
       default/lib/libTorch* \
       /opt/modular/lib; \
@@ -236,7 +235,6 @@ RUN cd /tmp \
     default/bin/mojo* \
     /opt/modular/bin \
   && cp -a default/lib/libAsyncRT* \
-    default/lib/libATenRT.so \
     default/lib/libKGENCompilerRT* \
     default/lib/liblldb* \
     default/lib/libMGPRT.so \
@@ -328,7 +326,7 @@ RUN echo MODULAR_HOME=\"\$HOME/.modular\" > /tmp/magicenv \
       ## MAX: Install CPU-only version of PyTorch in regular images
       export PIP_EXTRA_INDEX_URL="https://download.pytorch.org/whl/cpu"; \
     else \
-      export PIP_EXTRA_INDEX_URL="https://download.pytorch.org/whl/cu126"; \
+      export PIP_EXTRA_INDEX_URL="https://download.pytorch.org/whl/cu128"; \
     fi; \
     packages=$(grep "Requires-Dist:" \
       /usr/local/lib/python${PYTHON_VERSION%.*}/site-packages/max*.dist-info/METADATA | \
