@@ -190,22 +190,12 @@ RUN export MODULAR_HOME="$HOME/.modular" \
 
   ## Install MAX/Mojo
 RUN cd /tmp \
-  && if [ "${INSTALL_MAX}" = "1" ] || [ "${INSTALL_MAX}" = "true" ]; then \
-    if [ "${MOJO_VERSION}" = "nightly" ]; then \
-      magic init -c conda-forge -c https://conda.modular.com/max-nightly; \
-      magic add max max-pipelines python==${PYTHON_VERSION%.*}; \
-    else \
-      magic init -c conda-forge -c https://conda.modular.com/max; \
-      magic add max==${MOJO_VERSION} max-pipelines==${MOJO_VERSION} python==${PYTHON_VERSION%.*}; \
-    fi \
+  && if [ "${MOJO_VERSION}" = "nightly" ]; then \
+    magic init -c conda-forge -c https://conda.modular.com/max-nightly; \
+    magic add max max-pipelines python==${PYTHON_VERSION%.*}; \
   else \
-    if [ "${MOJO_VERSION}" = "nightly" ]; then \
-      magic init -c conda-forge -c https://conda.modular.com/max-nightly; \
-      magic add mojo-jupyter python==${PYTHON_VERSION%.*}; \
-    else \
-      magic init -c conda-forge -c https://conda.modular.com/max; \
-      magic add mojo-jupyter==${MOJO_VERSION} python==${PYTHON_VERSION%.*}; \
-    fi \
+    magic init -c conda-forge -c https://conda.modular.com/max; \
+    magic add max==${MOJO_VERSION} max-pipelines==${MOJO_VERSION} python==${PYTHON_VERSION%.*}; \
   fi \
   ## Disable telemetry
   && magic telemetry --manifest-path pixi.toml --disable \
@@ -218,10 +208,7 @@ RUN cd /tmp \
   && if [ "${INSTALL_MAX}" = "1" ] || [ "${INSTALL_MAX}" = "true" ]; then \
     cp -a default/bin/max* \
       /opt/modular/bin; \
-    cp -a default/lib/libDevice* \
-      default/lib/libGenericMLSupport* \
-      default/lib/libmax.so \
-      default/lib/libmodular* \
+    cp -a default/lib/libmax.so \
       default/lib/*MOGG* \
       /opt/modular/lib; \
     cp -a default/lib/python${PYTHON_VERSION%.*}/site-packages/max* \
@@ -234,12 +221,12 @@ RUN cd /tmp \
     default/bin/mojo* \
     /opt/modular/bin \
   && cp -a default/lib/libAsyncRT* \
+    default/lib/libGenericMLSupport* \
     default/lib/libKGENCompilerRT* \
     default/lib/liblldb* \
     default/lib/libMGPRT.so \
     default/lib/libMojo* \
     default/lib/libMSupport* \
-    default/lib/liborc_rt.a \
     default/lib/lldb* \
     default/lib/mojo* \
     /opt/modular/lib \
@@ -251,7 +238,7 @@ RUN cd /tmp \
   && mkdir ${MODULAR_HOME}/crashdb \
   && rm ${MODULAR_HOME}/firstActivation \
   ## Fix Modular home for Mojo
-  && sed -i "s|/tmp/.magic/envs/default|/opt/modular|g" \
+  && sed -i "s|/tmp/.magic/envs/default|/usr/local|g" \
     ${MODULAR_HOME}/modular.cfg \
   && if [ "${INSTALL_MAX}" = "1" ] || [ "${INSTALL_MAX}" = "true" ]; then \
     ## Fix Python path for MAX
@@ -262,7 +249,7 @@ RUN cd /tmp \
   && sed -i "s|/tmp/.magic/envs/default|/usr/local|g" \
     /opt/modular/bin/mblack \
   ## Fix permissions
-  && chown -R root:${NB_GID} /opt/modular \
+  && chown -R root:${NB_GID} ${MODULAR_HOME} \
   && chmod -R g+w ${MODULAR_HOME}
 
 ## Install the Mojo kernel for Jupyter
@@ -272,10 +259,8 @@ RUN mkdir -p /usr/local/share/jupyter/kernels \
   ## Fix Modular home in the Mojo kernel for Jupyter
   && grep -rl /tmp/.magic/envs/default/share/jupyter /usr/local/share/jupyter/kernels/mojo* | \
     xargs sed -i "s|/tmp/.magic/envs/default|/usr/local|g" \
-  && grep -rl /usr/local/share/max /usr/local/share/jupyter/kernels/mojo* | \
-    xargs sed -i "s|/usr/local/share/max|/opt/modular/share/max|g" \
   ## Change display name in the Mojo kernel for Jupyter
-  && sed -i "s|\"display_name\".*|\"display_name\": \"Mojo $MOJO_VERSION ${INSTALL_MAX:+(MAX)}\",|g" \
+  && sed -i "s|\"display_name\".*|\"display_name\": \"Mojo $MOJO_VERSION${INSTALL_MAX:+ (MAX)}\",|g" \
     /usr/local/share/jupyter/kernels/mojo*/kernel.json \
   && if [ "${MOJO_VERSION}" = "nightly" ]; then \
     cp -a /usr/local/share/jupyter/kernels/mojo*/nightly-logo-64x64.png \
@@ -288,12 +273,11 @@ FROM base
 
 ARG INSTALL_MAX
 
-ENV LD_LIBRARY_PATH=/opt/modular/lib${LD_LIBRARY_PATH:+:}${LD_LIBRARY_PATH}
-ENV PATH=/opt/modular/bin:$PATH
-ENV MAGIC_NO_PATH_UPDATE=1
+ENV MAGIC_NO_PATH_UPDATE=1 \
+    MODULAR_HOME=/usr/local/share/max
 
 ## Install MAX/Mojo
-COPY --from=modular /opt /opt
+COPY --from=modular /opt/modular /usr/local
 ## Install the Mojo kernel for Jupyter
 COPY --from=modular /usr/local/share/jupyter /usr/local/share/jupyter
 ## Install Python packages to the site library
