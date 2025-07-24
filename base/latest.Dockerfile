@@ -236,6 +236,7 @@ RUN cd /tmp \
     default/bin/mojo* \
     /opt/modular/bin \
   && cp -a default/lib/libAsyncRT* \
+    default/lib/libATenRT.so \
     default/lib/libKGENCompilerRT* \
     default/lib/liblldb* \
     default/lib/libMGPRT.so \
