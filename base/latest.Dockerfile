@@ -180,31 +180,28 @@ ARG NB_GID=100
 ARG MOJO_VERSION
 ARG INSTALL_MAX
 
-  ## Install Magic
-RUN export MODULAR_HOME="$HOME/.modular" \
-  && curl -ssL https://magic.modular.com | bash \
-  && mv ${HOME}/.modular/bin/magic /usr/local/bin \
+  ## Install Pixi
+RUN curl -fsSL https://pixi.sh/install.sh | bash \
+  && mv ${HOME}/.pixi/bin/pixi /usr/local/bin \
   ## Clean up
-  && rm -rf ${HOME}/.modular \
+  && rm -rf ${HOME}/.pixi \
   && rm -rf /usr/local/lib/python${PYTHON_VERSION%.*}/site-packages/*
 
   ## Install MAX/Mojo
 RUN cd /tmp \
   && if [ "${MOJO_VERSION}" = "nightly" ]; then \
-    magic init -c conda-forge -c https://conda.modular.com/max-nightly; \
-    magic add max max-pipelines python==${PYTHON_VERSION%.*}; \
+    pixi init -c conda-forge -c https://conda.modular.com/max-nightly; \
+    pixi add max max-pipelines python==${PYTHON_VERSION%.*}; \
   else \
-    magic init -c conda-forge -c https://conda.modular.com/max; \
-    magic add max==${MOJO_VERSION} max-pipelines==${MOJO_VERSION} python==${PYTHON_VERSION%.*}; \
+    pixi init -c conda-forge -c https://conda.modular.com/max; \
+    pixi add max==${MOJO_VERSION} max-pipelines==${MOJO_VERSION} python==${PYTHON_VERSION%.*}; \
   fi \
-  ## Disable telemetry
-  && magic telemetry --manifest-path pixi.toml --disable \
   ## Get rid of all the unnecessary stuff
   ## and move installation to /opt/modular
   && mkdir -p /opt/modular/bin \
   && mkdir -p /opt/modular/lib \
   && mkdir -p /opt/modular/share \
-  && cd /tmp/.magic/envs \
+  && cd /tmp/.pixi/envs \
   && if [ "${INSTALL_MAX}" = "1" ] || [ "${INSTALL_MAX}" = "true" ]; then \
     cp -a default/bin/max* \
       /opt/modular/bin; \
@@ -239,18 +236,21 @@ RUN cd /tmp \
   && cp -a default/test /opt/modular \
   && mkdir ${MODULAR_HOME}/crashdb \
   && rm ${MODULAR_HOME}/firstActivation \
+  ## Disable telemetry
+  && echo "\n[Telemetry]\nenabled = false\n\n[crash_reporting]\nenabled = false" \
+    >> ${MODULAR_HOME}/modular.cfg \
   ## Fix Modular home for Mojo
-  && sed -i "s|/tmp/.magic/envs/default|/usr/local|g" \
+  && sed -i "s|/tmp/.pixi/envs/default|/usr/local|g" \
     ${MODULAR_HOME}/modular.cfg \
   && if [ "${INSTALL_MAX}" = "1" ] || [ "${INSTALL_MAX}" = "true" ]; then \
     ## Fix Python path for max, max-serve, max-pipelines
-    sed -i "s|/tmp/.magic/envs/default|/usr/local|g" \
+    sed -i "s|/tmp/.pixi/envs/default|/usr/local|g" \
       /opt/modular/bin/max \
       /opt/modular/bin/max-serve \
       /opt/modular/bin/max-pipelines; \
   fi \
   ## Fix Python path for mblack
-  && sed -i "s|/tmp/.magic/envs/default|/usr/local|g" \
+  && sed -i "s|/tmp/.pixi/envs/default|/usr/local|g" \
     /opt/modular/bin/mblack \
   ## Fix permissions
   && chown -R root:${NB_GID} ${MODULAR_HOME} \
@@ -258,11 +258,11 @@ RUN cd /tmp \
 
 ## Install the Mojo kernel for Jupyter
 RUN mkdir -p /usr/local/share/jupyter/kernels \
-  && mv /tmp/.magic/envs/default/share/jupyter/kernels/mojo* \
+  && mv /tmp/.pixi/envs/default/share/jupyter/kernels/mojo* \
     /usr/local/share/jupyter/kernels/ \
   ## Fix Modular home in the Mojo kernel for Jupyter
-  && grep -rl /tmp/.magic/envs/default/share/jupyter /usr/local/share/jupyter/kernels/mojo* | \
-    xargs sed -i "s|/tmp/.magic/envs/default|/usr/local|g" \
+  && grep -rl /tmp/.pixi/envs/default/share/jupyter /usr/local/share/jupyter/kernels/mojo* | \
+    xargs sed -i "s|/tmp/.pixi/envs/default|/usr/local|g" \
   ## Change display name in the Mojo kernel for Jupyter
   && sed -i "s|\"display_name\".*|\"display_name\": \"Mojo $MOJO_VERSION${INSTALL_MAX:+ (MAX)}\",|g" \
     /usr/local/share/jupyter/kernels/mojo*/kernel.json \
@@ -277,7 +277,7 @@ FROM base
 
 ARG INSTALL_MAX
 
-ENV MAGIC_NO_PATH_UPDATE=1 \
+ENV PIXI_NO_PATH_UPDATE=1 \
     MODULAR_HOME=/usr/local/share/max
 
 ## Install MAX/Mojo
@@ -288,22 +288,13 @@ COPY --from=modular /usr/local/share/jupyter /usr/local/share/jupyter
 COPY --from=modular /usr/local/lib/python${PYTHON_VERSION%.*}/site-packages \
   /usr/local/lib/python${PYTHON_VERSION%.*}/site-packages
 
-RUN echo MODULAR_HOME=\"\$HOME/.modular\" > /tmp/magicenv \
-  && echo BIN_DIR=\"\$MODULAR_HOME/bin\" >> /tmp/magicenv \
-  && cp /tmp/magicenv /var/tmp/magicenv.bak \
-  && cp /tmp/magicenv /tmp/magicenv.mod \
-  ## Create the user's modular bin dir
-  && . /tmp/magicenv \
-  && mkdir -p ${BIN_DIR} \
-  && mkdir -p /etc/skel/.modular/bin \
-  ## Append the user's modular bin dir to PATH
-  && sed -i 's/\$HOME/\\$HOME/g' /tmp/magicenv.mod \
-  && . /tmp/magicenv.mod \
-  && echo "\n# Append the user's modular bin dir to PATH\nif [[ \"\$PATH\" != *\"${BIN_DIR}\"* ]] ; then\n    PATH=\"\$PATH:${BIN_DIR}\"\nfi" | tee -a ${HOME}/.bashrc \
+  ## Create the user's pixi bin dir
+RUN mkdir -p /root/.pixi/bin \
+  ## Append the user's pixi bin dir to PATH
+  && echo "\n# Append the user's pixi bin dir to PATH\nif [[ \"\$PATH\" != *\"\$HOME/.pixi/bin\"* ]] ; then\n    PATH=\"\$PATH:\$HOME/.pixi/bin\"\nfi" | tee -a ${HOME}/.bashrc \
     /etc/skel/.bashrc \
-  ## Create the user's modular bin dir in the skeleton directory
-  && HOME=/etc/skel . /tmp/magicenv \
-  && mkdir -p ${BIN_DIR} \
+  ## Create the user's pixi bin dir in the skeleton directory
+  && mkdir -p /etc/skel/.pixi/bin \
   ## MAX/Mojo: Install Python dependencies
   && apt-get update \
   && apt-get -y install --no-install-recommends cmake \
@@ -329,8 +320,6 @@ RUN echo MODULAR_HOME=\"\$HOME/.modular\" > /tmp/magicenv \
   && apt-get -y purge cmake \
   && apt-get -y autoremove \
   && rm -rf ${HOME}/.cache \
-    /tmp/magicenv \
-    /tmp/magicenv.mod \
     /var/lib/apt/lists/*
 
 ARG BUILD_START
