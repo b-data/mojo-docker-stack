@@ -205,7 +205,9 @@ RUN cd /tmp \
   && if [ "${INSTALL_MAX}" = "1" ] || [ "${INSTALL_MAX}" = "true" ]; then \
     cp -a default/bin/max* \
       /opt/modular/bin; \
-    cp -a default/lib/libmax.so \
+    cp -a default/lib/libDevice* \
+      default/lib/libmax.so \
+      default/lib/libmodular* \
       default/lib/*MOGG* \
       default/lib/libStock* \
       default/lib/libTorch* \
@@ -226,6 +228,7 @@ RUN cd /tmp \
     default/lib/libMGPRT.so \
     default/lib/libMojo* \
     default/lib/libMSupport* \
+    default/lib/liborc_rt.a \
     default/lib/lldb* \
     default/lib/mojo* \
     /opt/modular/lib \
