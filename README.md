@@ -40,8 +40,8 @@ These images are counterparts to the JupyterLab images but **without**
 
 and any configuration thereof.
 
-:information_source: Regading [Magic](https://docs.modular.com/magic/), see
-discussion [[(JupyterLab) MAX/Mojo docker stack] Why is Magic not installed?](https://github.com/orgs/b-data/discussions/5)
+:information_source: Regading [Magic/Pixi](https://docs.modular.com/pixi/), see
+discussion [[(JupyterLab) MAX/Mojo docker stack] Why is Magic/Pixi not installed?](https://github.com/orgs/b-data/discussions/5)
 
 ## Table of Contents
 
@@ -81,7 +81,7 @@ latest:
 
 ```shell
 docker build \
-  --build-arg MOJO_VERSION=25.3.0 \
+  --build-arg MOJO_VERSION=25.4.0 \
   --build-arg PYTHON_VERSION=3.12.11 \
   -t mojo/base \
   -f base/latest.Dockerfile .
