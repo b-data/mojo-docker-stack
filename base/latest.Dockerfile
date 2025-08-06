@@ -212,6 +212,8 @@ RUN cd /tmp \
       /usr/local/lib/python${PYTHON_VERSION%.*}/site-packages; \
   fi \
   && cp -a default/bin/lld \
+    default/bin/lldb* \
+    default/bin/mblack \
     default/bin/modular* \
     default/bin/mojo* \
     /opt/modular/bin \
