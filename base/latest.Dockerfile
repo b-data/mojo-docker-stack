@@ -191,10 +191,10 @@ RUN curl -fsSL https://pixi.sh/install.sh | bash \
 RUN cd /tmp \
   && if [ "${MOJO_VERSION}" = "nightly" ]; then \
     pixi init -c conda-forge -c https://conda.modular.com/max-nightly; \
-    pixi add max max-pipelines python==${PYTHON_VERSION%.*}; \
+    pixi add modular python==${PYTHON_VERSION%.*}; \
   else \
     pixi init -c conda-forge -c https://conda.modular.com/max; \
-    pixi add max==${MOJO_VERSION} max-pipelines==${MOJO_VERSION} python==${PYTHON_VERSION%.*}; \
+    pixi add modular==${MOJO_VERSION} python==${PYTHON_VERSION%.*}; \
   fi \
   ## Get rid of all the unnecessary stuff
   ## and move installation to /opt/modular
