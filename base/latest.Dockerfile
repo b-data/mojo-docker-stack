@@ -205,12 +205,8 @@ RUN cd /tmp \
   && if [ "${INSTALL_MAX}" = "1" ] || [ "${INSTALL_MAX}" = "true" ]; then \
     cp -a default/bin/max* \
       /opt/modular/bin; \
-    cp -a default/lib/libDevice* \
-      default/lib/libmax.so \
-      default/lib/libmodular* \
+    cp -a default/lib/libmax.so \
       default/lib/*MOGG* \
-      default/lib/libStock* \
-      default/lib/libTorch* \
       /opt/modular/lib; \
     cp -a default/lib/python${PYTHON_VERSION%.*}/site-packages/max* \
       /usr/local/lib/python${PYTHON_VERSION%.*}/site-packages; \
@@ -228,7 +224,6 @@ RUN cd /tmp \
     default/lib/libMGPRT.so \
     default/lib/libMojo* \
     default/lib/libMSupport* \
-    default/lib/liborc_rt.a \
     default/lib/lldb* \
     default/lib/mojo* \
     /opt/modular/lib \
@@ -246,11 +241,9 @@ RUN cd /tmp \
   && sed -i "s|/tmp/.pixi/envs/default|/usr/local|g" \
     ${MODULAR_HOME}/modular.cfg \
   && if [ "${INSTALL_MAX}" = "1" ] || [ "${INSTALL_MAX}" = "true" ]; then \
-    ## Fix Python path for max, max-serve, max-pipelines
+    ## Fix Python path for MAX
     sed -i "s|/tmp/.pixi/envs/default|/usr/local|g" \
-      /opt/modular/bin/max \
-      /opt/modular/bin/max-serve \
-      /opt/modular/bin/max-pipelines; \
+      /opt/modular/bin/max; \
   fi \
   ## Fix Python path for mblack
   && sed -i "s|/tmp/.pixi/envs/default|/usr/local|g" \
