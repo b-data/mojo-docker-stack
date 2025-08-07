@@ -249,8 +249,12 @@ RUN cd /tmp \
   && sed -i "s|/tmp/.pixi/envs/default|/usr/local|g" \
     /opt/modular/bin/mblack \
   ## Fix permissions
-  && chown -R root:${NB_GID} ${MODULAR_HOME} \
-  && chmod -R g+w ${MODULAR_HOME}
+  && chown -R root:${NB_GID} \
+    ${MODULAR_HOME} \
+    /usr/local/lib/python${PYTHON_VERSION%.*}/site-packages/max \
+  && chmod -R g+w \
+    ${MODULAR_HOME} \
+    /usr/local/lib/python${PYTHON_VERSION%.*}/site-packages/max
 
 ## Install the Mojo kernel for Jupyter
 RUN mkdir -p /usr/local/share/jupyter/kernels \
