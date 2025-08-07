@@ -1,6 +1,6 @@
 .env:
   variables:
-    MOJO_VERSION: "25.5.0"
+    MOJO_VERSION: "nightly"
     PYTHON_VERSION: "3.12.11"
     TAG_VERSION_MAJ_MIN: "false"
     TAG_VERSION_MAJ: "false"
