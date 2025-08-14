@@ -158,6 +158,8 @@ RUN dpkgArch="$(dpkg --print-architecture)" \
     packaging \
     pathspec \
     platformdirs \
+    tomli \
+    typing-extensions \
   ## Git: Set default branch name to main
   && git config --system init.defaultBranch main \
   ## Git: Store passwords for one hour in memory
