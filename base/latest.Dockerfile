@@ -175,6 +175,8 @@ RUN dpkgArch="$(dpkg --print-architecture)" \
   && rm -rf /var/lib/apt/lists/* \
     ${HOME}/.cache
 
+FROM quay.io/konflux-ci/yq:latest AS yq
+
 FROM base AS modular
 
 ARG NB_GID=100
@@ -182,12 +184,11 @@ ARG NB_GID=100
 ARG MOJO_VERSION
 ARG INSTALL_MAX
 
-  ## Install yq
-RUN apt-get update \
-  && apt-get -y install --no-install-recommends \
-    yq \
+## Install yq
+COPY --from=yq /usr/bin/yq /usr/bin/yq
+
   ## Install Pixi
-  && curl -fsSL https://pixi.sh/install.sh | bash \
+RUN curl -fsSL https://pixi.sh/install.sh | bash \
   && mv ${HOME}/.pixi/bin/pixi /usr/local/bin \
   ## Clean up
   && rm -rf ${HOME}/.pixi \
