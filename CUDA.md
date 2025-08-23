@@ -49,7 +49,7 @@ nightly:
 ```shell
 docker build \
   --build-arg BASE_IMAGE=ubuntu \
-  --build-arg BASE_IMAGE_TAG=22.04 \
+  --build-arg BASE_IMAGE_TAG=24.04 \
   --build-arg BUILD_ON_IMAGE=glcr.b-data.ch/cuda/python/ver \
   --build-arg MOJO_VERSION=nightly \
   --build-arg PYTHON_VERSION=3.12.11 \
@@ -64,7 +64,7 @@ latest:
 ```shell
 docker build \
   --build-arg BASE_IMAGE=ubuntu \
-  --build-arg BASE_IMAGE_TAG=22.04 \
+  --build-arg BASE_IMAGE_TAG=24.04 \
   --build-arg BUILD_ON_IMAGE=glcr.b-data.ch/cuda/python/ver \
   --build-arg MOJO_VERSION=25.5.0 \
   --build-arg PYTHON_VERSION=3.12.11 \
@@ -79,7 +79,7 @@ version:
 ```shell
 docker build \
   --build-arg BASE_IMAGE=ubuntu \
-  --build-arg BASE_IMAGE_TAG=22.04 \
+  --build-arg BASE_IMAGE_TAG=24.04 \
   --build-arg BUILD_ON_IMAGE=glcr.b-data.ch/cuda/python/ver \
   --build-arg CUDA_IMAGE_FLAVOR=base \
   --build-arg INSTALL_MAX=1 \
