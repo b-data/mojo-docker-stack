@@ -1,12 +1,12 @@
 ARG BASE_IMAGE=debian
-ARG BASE_IMAGE_TAG=12
+ARG BASE_IMAGE_TAG=13
 ARG BUILD_ON_IMAGE=glcr.b-data.ch/python/ver
 ARG MOJO_VERSION
 ARG PYTHON_VERSION
 ARG CUDA_IMAGE_FLAVOR
 
-ARG NEOVIM_VERSION=0.11.3
-ARG GIT_VERSION=2.50.1
+ARG NEOVIM_VERSION=0.11.4
+ARG GIT_VERSION=2.51.0
 ARG GIT_LFS_VERSION=3.7.0
 ARG PANDOC_VERSION=3.6.3
 
@@ -158,6 +158,8 @@ RUN dpkgArch="$(dpkg --print-architecture)" \
     packaging \
     pathspec \
     platformdirs \
+    tomli \
+    typing-extensions \
   ## Git: Set default branch name to main
   && git config --system init.defaultBranch main \
   ## Git: Store passwords for one hour in memory
@@ -191,10 +193,10 @@ RUN curl -fsSL https://pixi.sh/install.sh | bash \
 RUN cd /tmp \
   && if [ "${MOJO_VERSION}" = "nightly" ]; then \
     pixi init -c conda-forge -c https://conda.modular.com/max-nightly; \
-    pixi add max max-pipelines python==${PYTHON_VERSION%.*}; \
+    pixi add modular python==${PYTHON_VERSION%.*}; \
   else \
     pixi init -c conda-forge -c https://conda.modular.com/max; \
-    pixi add max==${MOJO_VERSION} max-pipelines==${MOJO_VERSION} python==${PYTHON_VERSION%.*}; \
+    pixi add modular==${MOJO_VERSION} python==${PYTHON_VERSION%.*}; \
   fi \
   ## Get rid of all the unnecessary stuff
   ## and move installation to /opt/modular
@@ -205,12 +207,8 @@ RUN cd /tmp \
   && if [ "${INSTALL_MAX}" = "1" ] || [ "${INSTALL_MAX}" = "true" ]; then \
     cp -a default/bin/max* \
       /opt/modular/bin; \
-    cp -a default/lib/libDevice* \
-      default/lib/libmax.so \
-      default/lib/libmodular* \
+    cp -a default/lib/libmax.so \
       default/lib/*MOGG* \
-      default/lib/libStock* \
-      default/lib/libTorch* \
       /opt/modular/lib; \
     cp -a default/lib/python${PYTHON_VERSION%.*}/site-packages/max* \
       /usr/local/lib/python${PYTHON_VERSION%.*}/site-packages; \
@@ -228,7 +226,6 @@ RUN cd /tmp \
     default/lib/libMGPRT.so \
     default/lib/libMojo* \
     default/lib/libMSupport* \
-    default/lib/liborc_rt.a \
     default/lib/lldb* \
     default/lib/mojo* \
     /opt/modular/lib \
@@ -246,18 +243,22 @@ RUN cd /tmp \
   && sed -i "s|/tmp/.pixi/envs/default|/usr/local|g" \
     ${MODULAR_HOME}/modular.cfg \
   && if [ "${INSTALL_MAX}" = "1" ] || [ "${INSTALL_MAX}" = "true" ]; then \
-    ## Fix Python path for max, max-serve, max-pipelines
+    ## Fix Python path for MAX
     sed -i "s|/tmp/.pixi/envs/default|/usr/local|g" \
-      /opt/modular/bin/max \
-      /opt/modular/bin/max-serve \
-      /opt/modular/bin/max-pipelines; \
+      /opt/modular/bin/max; \
   fi \
   ## Fix Python path for mblack
   && sed -i "s|/tmp/.pixi/envs/default|/usr/local|g" \
     /opt/modular/bin/mblack \
   ## Fix permissions
   && chown -R root:${NB_GID} ${MODULAR_HOME} \
-  && chmod -R g+w ${MODULAR_HOME}
+  && chmod -R g+w ${MODULAR_HOME} \
+  && if [ "${INSTALL_MAX}" = "1" ] || [ "${INSTALL_MAX}" = "true" ]; then \
+    chown -R root:${NB_GID} \
+      /usr/local/lib/python${PYTHON_VERSION%.*}/site-packages/max; \
+    chmod -R g+w \
+      /usr/local/lib/python${PYTHON_VERSION%.*}/site-packages/max; \
+  fi
 
 ## Install the Mojo kernel for Jupyter
 RUN mkdir -p /usr/local/share/jupyter/kernels \
@@ -303,12 +304,6 @@ RUN mkdir -p /root/.pixi/bin \
   && apt-get -y install --no-install-recommends cmake \
   && export PIP_BREAK_SYSTEM_PACKAGES=1 \
   && if [ "${INSTALL_MAX}" = "1" ] || [ "${INSTALL_MAX}" = "true" ]; then \
-    if [ -z "${CUDA_VERSION}" ]; then \
-      ## MAX: Install CPU-only version of PyTorch in regular images
-      export PIP_EXTRA_INDEX_URL="https://download.pytorch.org/whl/cpu"; \
-    else \
-      export PIP_EXTRA_INDEX_URL="https://download.pytorch.org/whl/cu128"; \
-    fi; \
     packages=$(grep "Requires-Dist:" \
       /usr/local/lib/python${PYTHON_VERSION%.*}/site-packages/max*.dist-info/METADATA | \
       sed "s|Requires-Dist: \(.*\)|\1|" | \
