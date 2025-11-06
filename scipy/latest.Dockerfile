@@ -118,11 +118,6 @@ RUN dpkgArch="$(dpkg --print-architecture)" \
     tables \
     #widgetsnbextension \
     xlrd \
-  ## Install facets
-  #&& cd /tmp \
-  #&& git clone https://github.com/PAIR-code/facets.git \
-  #&& jupyter nbextension install facets/facets-dist/ --sys-prefix \
-  #&& cd / \
   ## Clean up
   && rm -rf /tmp/* \
   && rm -rf /var/lib/apt/lists/* \
