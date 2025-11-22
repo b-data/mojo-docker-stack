@@ -1,6 +1,6 @@
 ARG BUILD_ON_IMAGE=glcr.b-data.ch/mojo/base
 ARG MOJO_VERSION
-ARG QUARTO_VERSION=1.8.24
+ARG QUARTO_VERSION=1.8.26
 ARG CTAN_REPO=https://mirror.ctan.org/systems/texlive/tlnet
 
 FROM ${BUILD_ON_IMAGE}${MOJO_VERSION:+:$MOJO_VERSION}
@@ -118,11 +118,6 @@ RUN dpkgArch="$(dpkg --print-architecture)" \
     tables \
     #widgetsnbextension \
     xlrd \
-  ## Install facets
-  #&& cd /tmp \
-  #&& git clone https://github.com/PAIR-code/facets.git \
-  #&& jupyter nbextension install facets/facets-dist/ --sys-prefix \
-  #&& cd / \
   ## Clean up
   && rm -rf /tmp/* \
   && rm -rf /var/lib/apt/lists/* \

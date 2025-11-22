@@ -5,9 +5,9 @@ ARG MOJO_VERSION
 ARG PYTHON_VERSION
 ARG CUDA_IMAGE_FLAVOR
 
-ARG NEOVIM_VERSION=0.11.4
-ARG GIT_VERSION=2.51.0
-ARG GIT_LFS_VERSION=3.7.0
+ARG NEOVIM_VERSION=0.11.5
+ARG GIT_VERSION=2.52.0
+ARG GIT_LFS_VERSION=3.7.1
 ARG PANDOC_VERSION=3.6.3
 
 ARG INSTALL_MAX
@@ -175,12 +175,17 @@ RUN dpkgArch="$(dpkg --print-architecture)" \
   && rm -rf /var/lib/apt/lists/* \
     ${HOME}/.cache
 
+FROM quay.io/konflux-ci/yq:latest AS yq
+
 FROM base AS modular
 
 ARG NB_GID=100
 
 ARG MOJO_VERSION
 ARG INSTALL_MAX
+
+## Install yq
+COPY --from=yq /usr/bin/yq /usr/bin/yq
 
   ## Install Pixi
 RUN curl -fsSL https://pixi.sh/install.sh | bash \
@@ -198,6 +203,9 @@ RUN cd /tmp \
     pixi init -c conda-forge -c https://conda.modular.com/max; \
     pixi add modular==${MOJO_VERSION} python==${PYTHON_VERSION%.*}; \
   fi \
+  && yq -r \
+    '.packages | map(select(.license == "LicenseRef-Modular-Proprietary")) | .[].constrains[]?' \
+    pixi.lock > requirements.txt \
   ## Get rid of all the unnecessary stuff
   ## and move installation to /opt/modular
   && mkdir -p /opt/modular/bin \
@@ -226,16 +234,18 @@ RUN cd /tmp \
     default/lib/libMGPRT.so \
     default/lib/libMojo* \
     default/lib/libMSupport* \
+    default/lib/libNVPTX.so \
     default/lib/lldb* \
     default/lib/mojo* \
     /opt/modular/lib \
   && cp -a default/lib/python${PYTHON_VERSION%.*}/site-packages/*mblack* \
     default/lib/python${PYTHON_VERSION%.*}/site-packages/mblib* \
+    default/lib/python${PYTHON_VERSION%.*}/site-packages/mojo* \
     /usr/local/lib/python${PYTHON_VERSION%.*}/site-packages \
   && cp -a default/share/max /opt/modular/share \
   && cp -a default/test /opt/modular \
   && mkdir ${MODULAR_HOME}/crashdb \
-  && rm ${MODULAR_HOME}/firstActivation \
+  && rm -rf ${MODULAR_HOME}/firstActivation \
   ## Disable telemetry
   && echo "\n[Telemetry]\nenabled = false\n\n[crash_reporting]\nenabled = false" \
     >> ${MODULAR_HOME}/modular.cfg \
@@ -284,6 +294,8 @@ ARG INSTALL_MAX
 ENV PIXI_NO_PATH_UPDATE=1 \
     MODULAR_HOME=/usr/local/share/max
 
+## Copy requirements file
+COPY --from=modular /tmp/requirements.txt /tmp/requirements.txt
 ## Install MAX/Mojo
 COPY --from=modular /opt/modular /usr/local
 ## Install the Mojo kernel for Jupyter
@@ -304,21 +316,16 @@ RUN mkdir -p /root/.pixi/bin \
   && apt-get -y install --no-install-recommends cmake \
   && export PIP_BREAK_SYSTEM_PACKAGES=1 \
   && if [ "${INSTALL_MAX}" = "1" ] || [ "${INSTALL_MAX}" = "true" ]; then \
-    packages=$(grep "Requires-Dist:" \
-      /usr/local/lib/python${PYTHON_VERSION%.*}/site-packages/max*.dist-info/METADATA | \
-      sed "s|Requires-Dist: \(.*\)|\1|" | \
-      cut -d ";" -f 1 | \
-      sed "s|xgrammar==|xgrammar>=|g" | \
-      tr -d "[:blank:]"); \
-    pip install $packages; \
+    pip install -r /tmp/requirements.txt; \
   else \
     pip install numpy; \
   fi \
   ## Clean up
   && apt-get -y purge cmake \
   && apt-get -y autoremove \
-  && rm -rf ${HOME}/.cache \
-    /var/lib/apt/lists/*
+  && rm -rf /tmp/* \
+  && rm -rf /var/lib/apt/lists/* \
+    ${HOME}/.cache
 
 ARG BUILD_START
 
