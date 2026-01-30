@@ -216,7 +216,6 @@ RUN cd /tmp \
     cp -a default/bin/max* \
       /opt/modular/bin; \
     cp -a default/lib/libmax.so \
-      default/lib/*MOGG* \
       /opt/modular/lib; \
     cp -a default/lib/python${PYTHON_VERSION%.*}/site-packages/max* \
       /usr/local/lib/python${PYTHON_VERSION%.*}/site-packages; \
@@ -242,7 +241,6 @@ RUN cd /tmp \
     default/lib/python${PYTHON_VERSION%.*}/site-packages/mojo* \
     /usr/local/lib/python${PYTHON_VERSION%.*}/site-packages \
   && cp -a default/share/max /opt/modular/share \
-  && cp -a default/test /opt/modular \
   && mkdir ${MODULAR_HOME}/crashdb \
   && rm -rf ${MODULAR_HOME}/firstActivation \
   ## Disable telemetry
