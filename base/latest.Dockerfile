@@ -241,7 +241,6 @@ RUN cd /tmp \
     default/lib/python${PYTHON_VERSION%.*}/site-packages/mojo* \
     /usr/local/lib/python${PYTHON_VERSION%.*}/site-packages \
   && cp -a default/share/max /opt/modular/share \
-  && cp -a default/test /opt/modular \
   && mkdir ${MODULAR_HOME}/crashdb \
   && rm -rf ${MODULAR_HOME}/firstActivation \
   ## Disable telemetry
