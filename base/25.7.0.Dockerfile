@@ -1,8 +1,8 @@
 ARG BASE_IMAGE=debian
 ARG BASE_IMAGE_TAG=13
 ARG BUILD_ON_IMAGE=glcr.b-data.ch/python/ver
-ARG MOJO_VERSION
-ARG PYTHON_VERSION
+ARG MOJO_VERSION=25.7.0
+ARG PYTHON_VERSION=3.13.11
 ARG CUDA_IMAGE_FLAVOR
 
 ARG NEOVIM_VERSION=0.11.6
@@ -216,6 +216,7 @@ RUN cd /tmp \
     cp -a default/bin/max* \
       /opt/modular/bin; \
     cp -a default/lib/libmax.so \
+      default/lib/*MOGG* \
       /opt/modular/lib; \
     cp -a default/lib/python${PYTHON_VERSION%.*}/site-packages/max* \
       /usr/local/lib/python${PYTHON_VERSION%.*}/site-packages; \
@@ -227,6 +228,7 @@ RUN cd /tmp \
     default/bin/mojo* \
     /opt/modular/bin \
   && cp -a default/lib/libAsyncRT* \
+    default/lib/libGenericMLSupport* \
     default/lib/libKGENCompilerRT* \
     default/lib/liblldb* \
     default/lib/libMGPRT.so \
