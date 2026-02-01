@@ -314,6 +314,7 @@ RUN mkdir -p /root/.pixi/bin \
   && export PIP_BREAK_SYSTEM_PACKAGES=1 \
   && if [ "${INSTALL_MAX}" = "1" ] || [ "${INSTALL_MAX}" = "true" ]; then \
     pip install -r /tmp/requirements.txt; \
+    pip install rich; \
   else \
     pip install numpy; \
   fi \
