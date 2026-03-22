@@ -194,8 +194,9 @@ RUN cd /tmp \
     pixi add modular==${MOJO_VERSION} python==${PYTHON_VERSION%.*}; \
   fi \
   && yq -r \
-    '.packages | map(select(.license == "LicenseRef-Modular-Proprietary")) | .[].depends[]?' \
-    pixi.lock | uniq | grep -Ev 'max|mblack|mojo|python ' > requirements.txt \
+    '.packages | map(select(.license == "LicenseRef-Modular-Proprietary")) | .[].depends[]?' pixi.lock \
+    | uniq | grep -Ev 'max|mblack|mojo|python-gil|python ' \
+    > requirements.txt \
   ## Get rid of all the unnecessary stuff
   ## and move installation to /opt/modular
   && mkdir -p /opt/modular/bin \
@@ -304,7 +305,6 @@ RUN mkdir -p /root/.pixi/bin \
   && export PIP_BREAK_SYSTEM_PACKAGES=1 \
   && if [ "${INSTALL_MAX}" = "1" ] || [ "${INSTALL_MAX}" = "true" ]; then \
     pip install -r /tmp/requirements.txt; \
-    pip install rich; \
   else \
     pip install numpy; \
   fi \
