@@ -150,16 +150,6 @@ RUN dpkgArch="$(dpkg --print-architecture)" \
   fi \
   ## MAX/Mojo: Additional runtime dependency
   && apt-get -y install --no-install-recommends libncurses-dev \
-  ## mblack: Additional Python dependencies
-  && export PIP_BREAK_SYSTEM_PACKAGES=1 \
-  && pip install \
-    click \
-    mypy-extensions \
-    packaging \
-    pathspec \
-    platformdirs \
-    tomli \
-    typing-extensions \
   ## Git: Set default branch name to main
   && git config --system init.defaultBranch main \
   ## Git: Store passwords for one hour in memory
@@ -204,8 +194,9 @@ RUN cd /tmp \
     pixi add modular==${MOJO_VERSION} python==${PYTHON_VERSION%.*}; \
   fi \
   && yq -r \
-    '.packages | map(select(.license == "LicenseRef-Modular-Proprietary")) | .[].constrains[]?' \
-    pixi.lock > requirements.txt \
+    '.packages | map(select(.license == "LicenseRef-Modular-Proprietary")) | .[].depends[]?' pixi.lock \
+    | uniq | grep -Ev 'max|mblack|mojo|python-gil|python ' \
+    > requirements.txt \
   ## Get rid of all the unnecessary stuff
   ## and move installation to /opt/modular
   && mkdir -p /opt/modular/bin \

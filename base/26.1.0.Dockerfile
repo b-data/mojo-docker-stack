@@ -1,14 +1,14 @@
 ARG BASE_IMAGE=debian
 ARG BASE_IMAGE_TAG=13
 ARG BUILD_ON_IMAGE=glcr.b-data.ch/python/ver
-ARG MOJO_VERSION=25.7.0
+ARG MOJO_VERSION=26.1.0
 ARG PYTHON_VERSION=3.13.11
 ARG CUDA_IMAGE_FLAVOR
 
 ARG NEOVIM_VERSION=0.11.6
-ARG GIT_VERSION=2.52.0
+ARG GIT_VERSION=2.53.0
 ARG GIT_LFS_VERSION=3.7.1
-ARG PANDOC_VERSION=3.6.3
+ARG PANDOC_VERSION=3.8.3
 
 ARG INSTALL_MAX
 ARG BASE_SELECT=${INSTALL_MAX:+max}
@@ -216,7 +216,6 @@ RUN cd /tmp \
     cp -a default/bin/max* \
       /opt/modular/bin; \
     cp -a default/lib/libmax.so \
-      default/lib/*MOGG* \
       /opt/modular/lib; \
     cp -a default/lib/python${PYTHON_VERSION%.*}/site-packages/max* \
       /usr/local/lib/python${PYTHON_VERSION%.*}/site-packages; \
@@ -228,7 +227,6 @@ RUN cd /tmp \
     default/bin/mojo* \
     /opt/modular/bin \
   && cp -a default/lib/libAsyncRT* \
-    default/lib/libGenericMLSupport* \
     default/lib/libKGENCompilerRT* \
     default/lib/liblldb* \
     default/lib/libMGPRT.so \
@@ -317,7 +315,6 @@ RUN mkdir -p /root/.pixi/bin \
   && export PIP_BREAK_SYSTEM_PACKAGES=1 \
   && if [ "${INSTALL_MAX}" = "1" ] || [ "${INSTALL_MAX}" = "true" ]; then \
     pip install -r /tmp/requirements.txt; \
-    pip install 'transformers<5'; \
   else \
     pip install numpy; \
   fi \
