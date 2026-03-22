@@ -265,6 +265,9 @@ RUN mkdir -p /usr/local/share/jupyter/kernels \
   ## Fix Modular home in the Mojo kernel for Jupyter
   && grep -rl /tmp/.pixi/envs/default/share/jupyter /usr/local/share/jupyter/kernels/mojo* | \
     xargs sed -i "s|/tmp/.pixi/envs/default|/usr/local|g" \
+  ## Fix Python path in the Mojo kernel for Jupyter
+  && grep -rl /tmp/.pixi/envs/default/share/jupyter /usr/local/share/jupyter/kernels/mojo* | \
+    xargs sed -i "s|\$PYTHON|$(which python)|g" \
   ## Change display name in the Mojo kernel for Jupyter
   && sed -i "s|\"display_name\".*|\"display_name\": \"Mojo $MOJO_VERSION${INSTALL_MAX:+ (MAX)}\",|g" \
     /usr/local/share/jupyter/kernels/mojo*/kernel.json \
