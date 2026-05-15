@@ -5,8 +5,8 @@ ARG MOJO_VERSION
 ARG PYTHON_VERSION
 ARG CUDA_IMAGE_FLAVOR
 
-ARG NEOVIM_VERSION=0.11.6
-ARG GIT_VERSION=2.53.0
+ARG NEOVIM_VERSION=0.12.2
+ARG GIT_VERSION=2.54.0
 ARG GIT_LFS_VERSION=3.7.1
 ARG PANDOC_VERSION=3.8.3
 
@@ -150,16 +150,6 @@ RUN dpkgArch="$(dpkg --print-architecture)" \
   fi \
   ## MAX/Mojo: Additional runtime dependency
   && apt-get -y install --no-install-recommends libncurses-dev \
-  ## mblack: Additional Python dependencies
-  && export PIP_BREAK_SYSTEM_PACKAGES=1 \
-  && pip install \
-    click \
-    mypy-extensions \
-    packaging \
-    pathspec \
-    platformdirs \
-    tomli \
-    typing-extensions \
   ## Git: Set default branch name to main
   && git config --system init.defaultBranch main \
   ## Git: Store passwords for one hour in memory
@@ -204,8 +194,9 @@ RUN cd /tmp \
     pixi add modular==${MOJO_VERSION} python==${PYTHON_VERSION%.*}; \
   fi \
   && yq -r \
-    '.packages | map(select(.license == "LicenseRef-Modular-Proprietary")) | .[].constrains[]?' \
-    pixi.lock > requirements.txt \
+    '.packages | map(select(.license == "LicenseRef-Modular-Proprietary")) | .[].depends[]?' pixi.lock \
+    | uniq | grep -Ev 'max|mblack|mojo|python-gil|python ' \
+    > requirements.txt \
   ## Get rid of all the unnecessary stuff
   ## and move installation to /opt/modular
   && mkdir -p /opt/modular/bin \
@@ -241,7 +232,6 @@ RUN cd /tmp \
     default/lib/python${PYTHON_VERSION%.*}/site-packages/mojo* \
     /usr/local/lib/python${PYTHON_VERSION%.*}/site-packages \
   && cp -a default/share/max /opt/modular/share \
-  && cp -a default/test /opt/modular \
   && mkdir ${MODULAR_HOME}/crashdb \
   && rm -rf ${MODULAR_HOME}/firstActivation \
   ## Disable telemetry
@@ -275,6 +265,9 @@ RUN mkdir -p /usr/local/share/jupyter/kernels \
   ## Fix Modular home in the Mojo kernel for Jupyter
   && grep -rl /tmp/.pixi/envs/default/share/jupyter /usr/local/share/jupyter/kernels/mojo* | \
     xargs sed -i "s|/tmp/.pixi/envs/default|/usr/local|g" \
+  ## Fix Python path in the Mojo kernel for Jupyter
+  && sed -i "s|\$PYTHON|$(which python)|g" \
+    /usr/local/share/jupyter/kernels/mojo*/kernel.json \
   ## Change display name in the Mojo kernel for Jupyter
   && sed -i "s|\"display_name\".*|\"display_name\": \"Mojo $MOJO_VERSION${INSTALL_MAX:+ (MAX)}\",|g" \
     /usr/local/share/jupyter/kernels/mojo*/kernel.json \
