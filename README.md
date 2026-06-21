@@ -107,13 +107,13 @@ For `MAJOR.MINOR.PATCH` ≥ `24.3.0`.
 self built:
 
 ```shell
-docker run -it --rm mojo/base[:MAJOR.MINOR.PATCH]
+docker run -it --rm --cap-add SYS_NICE mojo/base[:MAJOR.MINOR.PATCH]
 ```
 
 from the project's GitLab Container Registries:
 
 ```shell
-docker run -it --rm IMAGE[:MAJOR[.MINOR[.PATCH]]]
+docker run -it --rm --cap-add SYS_NICE IMAGE[:MAJOR[.MINOR[.PATCH]]]
 ```
 
 `IMAGE` being one of
