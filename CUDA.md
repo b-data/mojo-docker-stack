@@ -95,6 +95,7 @@ self built:
 
 ```shell
 docker run -it --rm \
+  --cap-add SYS_NICE \
   --gpus '"device=all"' \
   cuda/max/base[:MAJOR.MINOR.PATCH]
 ```
@@ -103,6 +104,7 @@ from the project's GitLab Container Registries:
 
 ```shell
 docker run -it --rm \
+  --cap-add SYS_NICE \
   --gpus '"device=all"' \
   IMAGE[:MAJOR[.MINOR[.PATCH]]]
 ```
