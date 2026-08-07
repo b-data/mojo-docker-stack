@@ -243,7 +243,6 @@ RUN cd /tmp \
     default/lib/liblldb* \
     default/lib/libMojo* \
     default/lib/libMSupport* \
-    default/lib/libNVPTX.so \
     default/lib/lldb* \
     default/lib/mojo* \
     /opt/modular/lib \
