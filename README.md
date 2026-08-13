@@ -77,7 +77,7 @@ nightly:
 ```shell
 docker build \
   --build-arg MOJO_VERSION=nightly \
-  --build-arg PYTHON_VERSION=3.14.6 \
+  --build-arg PYTHON_VERSION=3.14.7 \
   -t mojo/base:nightly \
   -f base/latest.Dockerfile .
 ```
@@ -86,8 +86,8 @@ latest:
 
 ```shell
 docker build \
-  --build-arg MOJO_VERSION=1.0.0b \
-  --build-arg PYTHON_VERSION=3.14.6 \
+  --build-arg MOJO_VERSION=1.0.0b2 \
+  --build-arg PYTHON_VERSION=3.14.7 \
   -t mojo/base \
   -f base/latest.Dockerfile .
 ```
@@ -107,13 +107,13 @@ For `MAJOR.MINOR.PATCH` ≥ `24.3.0`.
 self built:
 
 ```shell
-docker run -it --rm mojo/base[:MAJOR.MINOR.PATCH]
+docker run -it --rm --cap-add SYS_NICE mojo/base[:MAJOR.MINOR.PATCH]
 ```
 
 from the project's GitLab Container Registries:
 
 ```shell
-docker run -it --rm IMAGE[:MAJOR[.MINOR[.PATCH]]]
+docker run -it --rm --cap-add SYS_NICE IMAGE[:MAJOR[.MINOR[.PATCH]]]
 ```
 
 `IMAGE` being one of
