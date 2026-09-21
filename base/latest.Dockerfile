@@ -6,9 +6,9 @@ ARG MOJO_VERSION
 ARG PYTHON_VERSION
 ARG CUDA_IMAGE_FLAVOR
 
-ARG NEOVIM_VERSION=0.12.4
+ARG NEOVIM_VERSION=0.12.5
 ARG GIT_VERSION=2.55.0
-ARG GIT_LFS_VERSION=3.7.1
+ARG GIT_LFS_VERSION=3.8.0
 ARG PANDOC_VERSION=3.10
 
 ARG INSTALL_MAX
@@ -228,6 +228,7 @@ RUN cd /tmp \
       /opt/modular/bin; \
     cp -a default/lib/libmax.so \
       default/lib/libMGPRT.so \
+      default/lib/libNVPTX.so \
       /opt/modular/lib; \
     cp -a default/lib/python${PYTHON_VERSION%.*}/site-packages/max* \
       /usr/local/lib/python${PYTHON_VERSION%.*}/site-packages; \
@@ -243,7 +244,6 @@ RUN cd /tmp \
     default/lib/liblldb* \
     default/lib/libMojo* \
     default/lib/libMSupport* \
-    default/lib/libNVPTX.so \
     default/lib/lldb* \
     default/lib/mojo* \
     /opt/modular/lib \
