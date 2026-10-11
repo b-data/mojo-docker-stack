@@ -42,10 +42,10 @@ workflow:
     sed -n "s|\([[:digit:]]\+\)\(\.[[:digit:]]\+\.[[:digit:]]\+\\)\(.*\)|\1\3|p"`
 
 .build:
-  image: glcr.b-data.ch/docker/docker:dind
+  image: quay.io/bedata/docker:dind
   stage: build
   services:
-    - name: glcr.b-data.ch/docker/docker:dind
+    - name: quay.io/bedata/docker:dind
       alias: docker
   variables:
     DOCKER_DRIVER: overlay2
@@ -56,7 +56,7 @@ workflow:
   retry: 2
 
 .post:
-  image: glcr.b-data.ch/docker/docker:dind
+  image: quay.io/bedata/docker:dind
   stage: .post
 
 build:nightly-linux-amd64:
