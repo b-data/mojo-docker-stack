@@ -50,6 +50,7 @@ workflow:
   variables:
     DOCKER_DRIVER: overlay2
     DOCKER_TLS_CERTDIR: "/certs"
+    FF_NETWORK_PER_BUILD: "true"
     BUILDX_NO_DEFAULT_ATTESTATIONS: "true"
   before_script:
     - *before-script-build
